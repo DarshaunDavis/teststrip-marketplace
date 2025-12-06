@@ -20,6 +20,9 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onClose }) => {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [registerRole, setRegisterRole] = useState<"buyer" | "seller" | null>(
+    null
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +34,12 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onClose }) => {
       if (mode === "login") {
         await signInWithEmail(email, password);
       } else {
-        await registerWithEmail(email, password);
+        if (!registerRole) {
+          setError("Please tell us whether you're looking to sell or buy.");
+          setBusy(false);
+          return;
+        }
+        await registerWithEmail(email, password, registerRole);
       }
       onClose();
     } catch (err: any) {
@@ -148,6 +156,48 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onClose }) => {
           />
         </div>
 
+        {mode === "register" && (
+          <div
+            className="tsm-filter-group"
+            style={{ marginBottom: "0.8rem" }}
+          >
+            <label className="tsm-label">
+              Are you looking to sell or buy?
+            </label>
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                marginTop: "0.35rem",
+                fontSize: "0.9rem",
+              }}
+            >
+              <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="seller"
+                  checked={registerRole === "seller"}
+                  onChange={() => setRegisterRole("seller")}
+                  disabled={busy}
+                />
+                <span>Sell</span>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="buyer"
+                  checked={registerRole === "buyer"}
+                  onChange={() => setRegisterRole("buyer")}
+                  disabled={busy}
+                />
+                <span>Buy</span>
+              </label>
+            </div>
+          </div>
+        )}
+
         {error && (
           <p style={{ color: "#b91c1c", fontSize: "0.8rem" }}>{error}</p>
         )}
@@ -166,9 +216,10 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onClose }) => {
           <button
             className="tsm-btn-ghost"
             type="button"
-            onClick={() =>
-              setMode((m) => (m === "login" ? "register" : "login"))
-            }
+            onClick={() => {
+              setMode((m) => (m === "login" ? "register" : "login"));
+              setError(null);
+            }}
             disabled={busy}
           >
             {mode === "login"

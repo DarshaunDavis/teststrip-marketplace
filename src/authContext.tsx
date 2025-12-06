@@ -27,7 +27,11 @@ interface AuthContextValue {
   role: UserRole | null;
 
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  registerWithEmail: (email: string, password: string) => Promise<void>;
+  registerWithEmail: (
+    email: string,
+    password: string,
+    role?: UserRole
+  ) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -112,22 +116,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Email/password register
-  const registerWithEmail = async (email: string, password: string) => {
+  const registerWithEmail = async (
+    email: string,
+    password: string,
+    chosenRole?: UserRole
+  ) => {
     setLoading(true);
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
 
       const uid = cred.user.uid;
-      const defaultRole: UserRole = "seller"; // 👈 new users start as sellers
+      const defaultRole: UserRole = "seller";
+      const roleToSave: UserRole = chosenRole ?? defaultRole;
 
       await set(ref(rtdb, `users/${uid}`), {
         email,
-        role: defaultRole,
+        role: roleToSave,
         createdAt: Date.now(),
       });
 
       setUser(cred.user);
-      setRole(defaultRole);
+      setRole(roleToSave);
     } finally {
       setLoading(false);
     }
