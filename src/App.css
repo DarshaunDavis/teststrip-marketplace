@@ -1,0 +1,630 @@
+  .tsm-app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER ------------------------------------------------------------- */
+
+  .tsm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 3rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .tsm-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tsm-logo-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .tsm-logo-text {
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+
+  .tsm-logo-clickable:hover {
+  opacity: 0.85;
+  transition: opacity 0.15s ease-in-out;
+}
+
+  .tsm-nav-links {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .tsm-nav-link {
+    border: none;
+    background: transparent;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #4b5563;
+  }
+
+  .tsm-nav-link-active {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  .tsm-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+
+  .tsm-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: #e5e7eb;
+  }
+
+  /* MAIN --------------------------------------------------------------- */
+
+  .tsm-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 1.75rem;
+    padding: 1.5rem 3rem 2rem;
+  }
+
+  /* FILTERS ------------------------------------------------------------ */
+
+  .tsm-filters {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.25rem 1.25rem 1rem;
+    align-self: flex-start;
+  }
+
+  .tsm-filters-title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .tsm-filter-group {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .tsm-filter-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .tsm-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+
+  .tsm-help-text {
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  /* ZIP + Nationwide stacked */
+
+  .tsm-zip-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  /* Shared input/select styles */
+
+  .tsm-input {
+    flex: 1;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .tsm-input:focus {
+    outline: 2px solid #2563eb22;
+    border-color: #2563eb;
+  }
+
+  .tsm-select {
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    font-size: 0.85rem;
+    background: white;
+    width: 100%;
+  }
+
+  .tsm-checkbox-row {
+    margin-top: 0.25rem;
+  }
+
+  /* Buyer offer: Min/Max stacked */
+
+  .tsm-range-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .tsm-filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .tsm-btn-primary {
+    flex: 1;
+    border-radius: 999px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    height: 40px;
+  }
+
+  .tsm-btn-ghost {
+    flex: 1;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: white;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    height: 40px;
+  }
+
+  /* FEED --------------------------------------------------------------- */
+
+  .tsm-feed {
+    min-width: 0;
+  }
+
+  .tsm-feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+  }
+
+  .tsm-feed-title {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .tsm-feed-subtitle {
+    margin: 0.3rem 0 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .tsm-view-toggle {
+    display: inline-flex;
+    border-radius: 999px;
+    background: #e5e7eb;
+    padding: 0.15rem;
+  }
+
+  .tsm-view-btn {
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #4b5563;
+  }
+
+  .tsm-view-btn-active {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .tsm-section-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.4rem;
+  }
+
+  .tsm-section-label-right {
+    font-size: 0.75rem;
+  }
+
+  /* CARDS --------------------------------------------------------------- */
+
+  /* Base grid */
+.tsm-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* Gallery view = multiple columns with images (Craigslist gallery style) */
+.tsm-card-grid-gallery {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+/* List view = single-column list (Craigslist list style) */
+.tsm-card-grid-list {
+  grid-template-columns: 1fr;
+}
+
+/* Make list rows a bit more compact */
+.tsm-card-grid-list .tsm-ad-card {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Just in case, ensure any stray image placeholder is hidden in list mode */
+.tsm-card-grid-list .tsm-ad-image-placeholder {
+  display: none;
+}
+
+
+
+  .tsm-ad-card {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tsm-ad-image-placeholder {
+    height: 150px;
+    background: linear-gradient(135deg, #e0f2fe, #f9fafb);
+  }
+
+  .tsm-ad-body {
+    padding: 0.9rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+  }
+
+  .tsm-ad-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tsm-ad-title {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .tsm-pill {
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .tsm-pill-premium {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .tsm-ad-meta {
+    margin: 0;
+    color: #6b7280;
+  }
+
+  .tsm-ad-price {
+    margin: 0.3rem 0 0;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .tsm-ad-buyer {
+    margin: 0.15rem 0 0;
+  }
+
+  .tsm-ad-note {
+    margin: 0.15rem 0 0;
+    color: #6b7280;
+    font-size: 0.78rem;
+  }
+
+  /* FOOTER -------------------------------------------------------------- */
+
+  .tsm-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 0.75rem 3rem;
+    background: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .tsm-footer-links {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .tsm-footer-links button {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #4b5563;
+  }
+
+  /* RESPONSIVE ---------------------------------------------------------- */
+
+  @media (max-width: 900px) {
+    .tsm-main {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 1rem;
+    }
+
+    .tsm-filters {
+      order: 2;
+    }
+
+    .tsm-feed {
+      order: 1;
+    }
+
+    .tsm-header {
+      padding: 0.75rem 1rem;
+    }
+
+    .tsm-footer {
+      padding: 0.75rem 1rem;
+    }
+  }
+
+  /* ─────────────────────────────── */
+  /* Modal overlay for auth panel    */
+  /* ─────────────────────────────── */
+
+  .tsm-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55); /* dark translucent */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 4rem; /* a bit below the very top */
+    z-index: 40;
+  }
+
+  .tsm-modal {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+
+    /* NEW WIDTH (was huge before) */
+    max-width: 560px;             /* perfect size for login modals */
+    width: 90%;                   /* mobile friendly */
+
+    padding: 1.5rem;              /* more breathing room */
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+  }
+
+  /* ───────────────────────────── */
+/* Refined filters sidebar       */
+/* ───────────────────────────── */
+
+.tsm-filters {
+  background: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06);
+  padding: 1.4rem 1.35rem 1.1rem;
+}
+
+/* Title: slightly smaller, all caps label feel */
+.tsm-filters-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+/* Group layout: tighter + separators */
+.tsm-filter-group {
+  margin-top: 0;
+  padding: 0.85rem 0;
+  font-size: 0.82rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.tsm-filter-group:first-of-type {
+  border-top: none;
+  padding-top: 0.5rem;
+}
+
+.tsm-label {
+  margin-bottom: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: none;
+  color: #111827;
+}
+
+/* Inputs / selects: soft background, rounded */
+.tsm-input,
+.tsm-select,
+.tsm-input[type="email"],
+.tsm-input[type="password"],
+.tsm-input[type="text"] {
+  background: #f9fafb;
+  border-radius: 0.6rem;
+  border: 1px solid #e5e7eb;
+  font-size: 0.83rem;
+  padding: 0.45rem 0.7rem;
+}
+
+.tsm-input:focus,
+.tsm-select:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.18);
+  border-color: #2563eb;
+  background: #ffffff;
+}
+
+/* Help text a bit lighter / tighter */
+.tsm-help-text {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+/* Checkbox rows */
+.tsm-checkbox-row {
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+/* Min/Max range inputs */
+.tsm-range-group {
+  gap: 0.45rem;
+}
+
+/* Inline Min / Max fields (Craigslist-style) */
+.tsm-range-inline {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.tsm-range-inline .tsm-input {
+  flex: 1;
+}
+
+
+/* More compact look specifically for price row */
+.tsm-range-inline-compact {
+  margin-top: 0.25rem;
+}
+
+/* Wrapper to show a $ inside the field */
+.tsm-input-with-prefix {
+  position: relative;
+  flex: 1;
+}
+
+/* Shift text right so it doesn’t overlap the $ */
+.tsm-input-with-prefix .tsm-input {
+  padding-left: 1.4rem;
+}
+
+/* The $ symbol */
+.tsm-input-prefix {
+  position: absolute;
+  top: 50%;
+  left: 0.45rem;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* Apply / Reset buttons: full width, pill style */
+.tsm-filter-actions {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tsm-btn-primary,
+.tsm-btn-ghost {
+  font-size: 0.85rem;
+  border-radius: 999px;
+  height: 42px;
+}
+
+.tsm-btn-primary {
+  background: #2563eb;
+  border-color: transparent;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.3);
+}
+
+.tsm-btn-primary:hover {
+  filter: brightness(1.03);
+}
+
+.tsm-btn-ghost {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+/* Role switcher in header */
+/* Role switch / badge in header */
+.tsm-role-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.tsm-role-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.tsm-role-select {
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  padding: 0.15rem 0.75rem;
+}
+
+.tsm-role-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-weight: 600;
+}
