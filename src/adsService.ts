@@ -19,7 +19,6 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
-// ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
 
@@ -29,7 +28,9 @@ export interface CreateBuyerAdInput {
   category: string;
   zip: string;
   price: number;
-  contactEmail: string;
+  // At least one of these should be provided by the UI
+  contactEmail?: string;
+  contactPhone?: string;
   note?: string;
   ownerUid?: string | null;
   isAnonymous: boolean;
@@ -47,20 +48,48 @@ export async function createBuyerAd(input: CreateBuyerAdInput): Promise<string> 
   const adsRef = rtdbRef(rtdb, "ads");
   const newAdRef = push(adsRef);
 
-  const payload = {
+  // Build payload and remove any undefined values (RTDB doesn't allow them)
+  const payload: any = {
     ...input,
-    createdAt: Date.now(), // numeric for easy sorting on client
+    createdAt: Date.now(),
   };
+
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === undefined) {
+      delete payload[key];
+    }
+  });
 
   await set(newAdRef, payload);
 
-console.log("[createBuyerAd] wrote ad", newAdRef.key, payload);
+  console.log("[createBuyerAd] wrote ad", newAdRef.key, payload);
 
   return newAdRef.key as string;
 }
 
 // ─────────────────────────────────────────────
-// Firestore + Storage: images for an ad
+// Firestore: analytics collection (optional)
+// ─────────────────────────────────────────────
+
+export async function logAdCreatedEvent(data: {
+  adId: string;
+  role: string;
+  postType: string;
+}) {
+  try {
+    const col = collection(firestore, "adEvents");
+    await addDoc(col, {
+      ...data,
+      type: "created",
+      createdAt: fsServerTimestamp(),
+    });
+  } catch (err) {
+    console.warn("[logAdCreatedEvent] failed", err);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Storage: ad images
 // ─────────────────────────────────────────────
 
 export async function uploadAdImages(
@@ -68,7 +97,6 @@ export async function uploadAdImages(
   files: File[],
   ownerUid: string | null
 ): Promise<string[]> {
-
   if (!files.length) return [];
 
   const urls: string[] = [];
@@ -85,23 +113,10 @@ export async function uploadAdImages(
       await uploadBytes(fileRef, file);
 
       // Get download URL
-      const downloadURL = await getDownloadURL(fileRef);
-      urls.push(downloadURL);
-      console.log("[uploadAdImages] got downloadURL", downloadURL);
-
-      // Save metadata to Firestore
-      await addDoc(collection(firestore, "adImages"), {
-        adId,
-        ownerUid: ownerUid ?? null,
-        downloadURL,
-        path: filePath,
-        createdAt: fsServerTimestamp(),
-      });
-
-      console.log("[uploadAdImages] stored metadata for", filePath);
+      const url = await getDownloadURL(fileRef);
+      urls.push(url);
     } catch (err) {
       console.error("[uploadAdImages] failed for file", file.name, err);
-      // Continue with next file, don't stop the entire wizard
     }
   }
 

@@ -165,7 +165,13 @@ function App() {
           state: data.state ?? "",
           zip: data.zip ?? "",
           price: data.price ?? 0,
-          buyerName: data.buyerName ?? data.contactEmail ?? "Buyer",
+          buyerName:
+            data.buyerName ??
+            data.contactEmail ??
+            data.contactPhone ??
+            "Buyer",
+          contactEmail: data.contactEmail ?? undefined,   // ← new wiring
+          contactPhone: data.contactPhone ?? undefined,   // ← new wiring
           premium: !!data.premium,
           note: data.note ?? undefined,
           createdAt: data.createdAt ?? null,

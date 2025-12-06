@@ -24,6 +24,8 @@ const AdDetailsModal: React.FC<AdDetailsModalProps> = ({
   onChangeImage,
 }) => {
   const mainImage = activeImageUrl || ad.mainImageUrl || null;
+  const hasEmail = !!ad.contactEmail;
+  const hasPhone = !!ad.contactPhone;
 
   return (
     <div
@@ -236,21 +238,52 @@ const AdDetailsModal: React.FC<AdDetailsModalProps> = ({
                   marginBottom: "0.5rem",
                 }}
               >
-                To sell to this buyer, contact them using the email on
-                file:
+                {hasEmail && hasPhone
+                  ? "To sell to this buyer, you can email or call/text them:"
+                  : hasEmail
+                  ? "To sell to this buyer, contact them using the email on file:"
+                  : hasPhone
+                  ? "To sell to this buyer, contact them using the phone number on file:"
+                  : "This ad has no direct contact info listed. Please check the description for details."}
               </p>
 
-              <a href={`mailto:${ad.buyerName}`} style={{ display: "none" }} />
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {hasEmail && (
+                  <button
+                    type="button"
+                    className="tsm-btn-primary"
+                    onClick={() => {
+                      window.location.href = `mailto:${ad.contactEmail}`;
+                    }}
+                  >
+                    Email buyer
+                  </button>
+                )}
 
-              <button
-                type="button"
-                className="tsm-btn-primary"
-                onClick={() => {
-                  window.location.href = `mailto:${ad.buyerName}`;
-                }}
-              >
-                Email buyer
-              </button>
+                {hasPhone && (
+                  <button
+                    type="button"
+                    className="tsm-btn-primary"
+                    onClick={() => {
+                      window.location.href = `tel:${ad.contactPhone}`;
+                    }}
+                  >
+                    Call / text buyer
+                  </button>
+                )}
+              </div>
+
+              {!hasEmail && !hasPhone && (
+                <p
+                  style={{
+                    marginTop: "0.5rem",
+                    fontSize: "0.8rem",
+                    color: "#6b7280",
+                  }}
+                >
+                  No contact email or phone number was provided for this ad.
+                </p>
+              )}
             </div>
           </div>
         </div>

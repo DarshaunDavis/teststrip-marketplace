@@ -3,7 +3,7 @@
 export type AdCategory = "Devices" | "Supplies" | "Test Strips";
 
 // NEW: what kind of post is this?
-export type PostType = "offer" | "want" | "build"; 
+export type PostType = "offer" | "want" | "build";
 // offer  = seller
 // want   = buyer
 // build  = wholesaler
@@ -28,6 +28,8 @@ export interface BuyerAd {
   zip: string;
   price: number;
   buyerName: string;
+  contactEmail?: string;
+  contactPhone?: string;
   premium?: boolean;
   note?: string;
   createdAt?: number | null;

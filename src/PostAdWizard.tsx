@@ -21,7 +21,7 @@ export default function PostAdWizard({
 }: PostAdWizardProps) {
   const [step, setStep] = useState<WizardStep>(1);
 
-  // Step 1: location (Craigslist-style "where is this posting?")
+  // Step 1: location
   const [location, setLocation] = useState<string>("Nationwide");
 
   // Step 2: core ad details
@@ -29,7 +29,9 @@ export default function PostAdWizard({
   const [category, setCategory] = useState<AdCategory>("Test Strips");
   const [price, setPrice] = useState("");
   const [zip, setZip] = useState("");
+
   const [contactEmail, setContactEmail] = useState(defaultEmail);
+  const [contactPhone, setContactPhone] = useState(""); // ⭐ NEW
 
   // Step 3: description / ad copy
   const [description, setDescription] = useState("");
@@ -53,7 +55,12 @@ export default function PostAdWizard({
   // Basic step-level validation
   const canGoNextFromStep1 = !!location;
   const canGoNextFromStep2 =
-    !!title && !!price && !Number.isNaN(Number(price)) && Number(price) > 0;
+    !!title &&
+    !!price &&
+    !Number.isNaN(Number(price)) &&
+    Number(price) > 0 &&
+    (contactEmail.trim() !== "" || contactPhone.trim() !== ""); // ⭐ NEW
+
   const canGoNextFromStep3 = !!description;
 
   const handleNext = () => {
@@ -63,7 +70,7 @@ export default function PostAdWizard({
     if (step === 1 && !canGoNextFromStep1) return;
 
     if (step === 2 && !canGoNextFromStep2) {
-      setError("Please provide a title and a valid price.");
+      setError("Please provide a title, valid price, and at least an email or phone number."); // ⭐ NEW
       return;
     }
 
@@ -85,14 +92,13 @@ export default function PostAdWizard({
     if (!e.target.files) return;
     const list = Array.from(e.target.files);
 
-    // For now, cap at 4 images (easy MVP)
+    // For now, cap at 4 images
     const limited = list.slice(0, 4);
     setImageFiles(limited);
 
-    // Clean up old object URLs
+    // Clean up old URLs
     imagePreviews.forEach((url) => URL.revokeObjectURL(url));
 
-    // Create new preview URLs
     const previewUrls = limited.map((file) => URL.createObjectURL(file));
     setImagePreviews(previewUrls);
   };
@@ -103,38 +109,41 @@ export default function PostAdWizard({
     setSuccess(null);
 
     const priceNum = Number(price);
+
     if (!title || !price || Number.isNaN(priceNum) || priceNum <= 0) {
       setError("Please enter a valid title and price.");
       return;
     }
 
-    if (!contactEmail) {
-      setError("Please provide a contact email.");
+    // ⭐ NEW — allow email OR phone
+    if (!contactEmail.trim() && !contactPhone.trim()) {
+      setError("Please provide at least an email or phone number.");
       return;
     }
 
     setBusy(true);
     try {
-      // 1) Create the ad in Realtime DB
+      // 1) Create the ad
       const adId = await createBuyerAd({
-  title,
-  productType: category,
-  category,
-  zip,
-  price: priceNum,
-  contactEmail,
-  note: description,
-  ownerUid: ownerUid ?? null,
-  isAnonymous: false,
-  city: location === "Nationwide" ? "" : location,
-  state: "",
-});
+        title,
+        productType: category,
+        category,
+        zip,
+        price: priceNum,
+        contactEmail: contactEmail.trim() || undefined, // ⭐ NEW
+        contactPhone: contactPhone.trim() || undefined, // ⭐ NEW
+        note: description,
+        ownerUid: ownerUid ?? null,
+        isAnonymous: false,
+        city: location === "Nationwide" ? "" : location,
+        state: "",
+      });
 
-      // 2) Upload images (optional)
+      // 2) Upload images
       if (imageFiles.length) {
         const urls = await uploadAdImages(adId, imageFiles, ownerUid ?? null);
 
-        // 3) Attach URLs to the ad in Realtime DB
+        // 3) Attach URLs
         if (urls.length) {
           await attachImagesToAd(adId, urls);
         }
@@ -155,7 +164,7 @@ export default function PostAdWizard({
 
   return (
     <div className="tsm-filters" style={{ maxWidth: 520, width: "100%" }}>
-      {/* Header with close button */}
+      {/* Header */}
       <div
         style={{
           display: "flex",
@@ -190,54 +199,14 @@ export default function PostAdWizard({
       </p>
 
       {error && (
-        <p
-          style={{
-            color: "#b91c1c",
-            fontSize: "0.8rem",
-            marginBottom: "0.5rem",
-          }}
-        >
+        <p style={{ color: "#b91c1c", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
           {error}
         </p>
       )}
       {success && (
-        <p
-          style={{
-            color: "#15803d",
-            fontSize: "0.8rem",
-            marginBottom: "0.5rem",
-          }}
-        >
+        <p style={{ color: "#15803d", fontSize: "0.8rem", marginBottom: "0.5rem" }}>
           {success}
         </p>
-      )}
-
-      {/* STEP 1 – Location */}
-      {step === 1 && (
-        <div>
-          <h2 className="tsm-wizard-title">Where is this posting?</h2>
-          <p className="tsm-wizard-subtitle">
-            This is like choosing a Craigslist city (e.g., Bronx / NYC).
-          </p>
-
-          <div className="tsm-filter-group">
-            <label className="tsm-label">Location</label>
-            <select
-              className="tsm-select"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            >
-              <option value="Nationwide">Nationwide</option>
-              <option value="New York Metro">New York Metro</option>
-              <option value="Atlanta Metro">Atlanta Metro</option>
-              <option value="Dallas / Fort Worth">Dallas / Fort Worth</option>
-              <option value="Los Angeles Metro">Los Angeles Metro</option>
-            </select>
-            <p className="tsm-help-text">
-              We&apos;ll expand and link ZIP codes later as the database grows.
-            </p>
-          </div>
-        </div>
       )}
 
       {/* STEP 2 – Details */}
@@ -246,9 +215,9 @@ export default function PostAdWizard({
           <h2 className="tsm-wizard-title">
             {roleLabel.charAt(0).toUpperCase() + roleLabel.slice(1)} details
           </h2>
+
           <p className="tsm-wizard-subtitle">
-            This is the core info people in this industry post across Craigslist
-            today.
+            This is the core info people in this industry post across Craigslist.
           </p>
 
           <div className="tsm-filter-group">
@@ -276,7 +245,7 @@ export default function PostAdWizard({
           </div>
 
           <div className="tsm-filter-group">
-            <label className="tsm-label">Price you&apos;re offering ($)</label>
+            <label className="tsm-label">Price you're offering ($)</label>
             <input
               className="tsm-input"
               value={price}
@@ -295,15 +264,30 @@ export default function PostAdWizard({
             />
           </div>
 
+          {/* ⭐ NEW — phone input added right under email */}
           <div className="tsm-filter-group">
-            <label className="tsm-label">Contact email</label>
+            <label className="tsm-label">Contact email (optional)</label>
             <input
               className="tsm-input"
               type="email"
-              required
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
+              placeholder="you@example.com"
             />
+          </div>
+
+          <div className="tsm-filter-group">
+            <label className="tsm-label">Contact phone (optional)</label>
+            <input
+              className="tsm-input"
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="e.g., 555-123-4567"
+            />
+            <p className="tsm-help-text">
+              You must provide at least one contact method: email or phone.
+            </p>
           </div>
         </div>
       )}
