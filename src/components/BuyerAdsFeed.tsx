@@ -103,12 +103,6 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
                   {ad.productType} • {ad.city || "Nationwide"},{" "}
                   {ad.state} • ZIP {ad.zip || "N/A"}
                 </p>
-
-                <p className="tsm-ad-price">${ad.price}</p>
-
-                <p className="tsm-ad-buyer">{ad.buyerName}</p>
-
-                {ad.note && <p className="tsm-ad-note">{ad.note}</p>}
               </div>
             </article>
           );
