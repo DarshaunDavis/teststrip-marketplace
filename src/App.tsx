@@ -117,7 +117,15 @@ function applyFiltersForFeed(
 ): BuyerAd[] {
   let result = [...ads];
 
-  // Category filter
+  // ── ZIP filter (exact 5-digit match) ─────────────────────────
+  const zipTrim = filters.zip.trim();
+  if (zipTrim && /^\d{5}$/.test(zipTrim)) {
+    result = result.filter(
+      (ad) => (ad.zip ?? "").trim() === zipTrim
+    );
+  }
+
+  // ── Category filter ──────────────────────────────────────────
   const allowedCategories: AdCategory[] = [];
   if (filters.categoryDevices) allowedCategories.push("Devices");
   if (filters.categorySupplies) allowedCategories.push("Supplies");
@@ -127,7 +135,7 @@ function applyFiltersForFeed(
     result = result.filter((ad) => allowedCategories.includes(ad.category));
   }
 
-  // Price filters
+  // ── Price filters ────────────────────────────────────────────
   const min = filters.priceMin.trim() ? Number(filters.priceMin) : null;
   const max = filters.priceMax.trim() ? Number(filters.priceMax) : null;
 
@@ -139,7 +147,7 @@ function applyFiltersForFeed(
     result = result.filter((ad) => ad.price <= max);
   }
 
-  // Search (title + note)
+  // ── Search (title + note) ───────────────────────────────────
   const q = filters.search.trim().toLowerCase();
   if (q) {
     result = result.filter((ad) => {
@@ -149,7 +157,7 @@ function applyFiltersForFeed(
     });
   }
 
-  // Sort
+  // ── Sort ─────────────────────────────────────────────────────
   if (filters.sortBy === "highest") {
     result.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
   } else {
