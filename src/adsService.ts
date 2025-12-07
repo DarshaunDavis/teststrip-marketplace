@@ -19,6 +19,8 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
+import type { PostingRole } from "./types";
+
 // Types
 // ─────────────────────────────────────────────
 
@@ -37,6 +39,8 @@ export interface CreateBuyerAdInput {
   // optional city/state in later steps
   city?: string;
   state?: string;
+  // NEW: which role created this posting
+  postingRole?: PostingRole;
 }
 
 // ─────────────────────────────────────────────
@@ -48,17 +52,10 @@ export async function createBuyerAd(input: CreateBuyerAdInput): Promise<string> 
   const adsRef = rtdbRef(rtdb, "ads");
   const newAdRef = push(adsRef);
 
-  // Build payload and remove any undefined values (RTDB doesn't allow them)
-  const payload: any = {
+  const payload = {
     ...input,
     createdAt: Date.now(),
   };
-
-  Object.keys(payload).forEach((key) => {
-    if (payload[key] === undefined) {
-      delete payload[key];
-    }
-  });
 
   await set(newAdRef, payload);
 

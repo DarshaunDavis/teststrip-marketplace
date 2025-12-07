@@ -49,6 +49,7 @@ const SellForm: React.FC<SellFormProps> = ({ user, postingRole }) => {
         note,
         ownerUid: user ? (user as any).uid ?? null : null,
         isAnonymous: false,
+        postingRole,
       });
 
       setTitle("");

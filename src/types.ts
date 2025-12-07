@@ -35,5 +35,6 @@ export interface BuyerAd {
   createdAt?: number | null;
   mainImageUrl?: string;
   imageUrls?: string[];
+  postingRole?: PostingRole;
   postType?: PostType;
 }

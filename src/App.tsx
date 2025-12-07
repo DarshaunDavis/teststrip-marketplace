@@ -14,7 +14,7 @@ import FiltersSidebar from "./components/FiltersSidebar";
 import BuyerAdsFeed from "./components/BuyerAdsFeed";
 import AdDetailsModal from "./components/AdDetailsModal";
 import SellForm from "./components/SellForm";
-import AdminPage from "./components/AdminPage"; // 👈 NEW
+import AdminPage from "./components/AdminPage";
 
 const MOCK_ADS: BuyerAd[] = [
   {
@@ -173,6 +173,7 @@ function App() {
           createdAt: data.createdAt ?? null,
           mainImageUrl: data.mainImageUrl ?? undefined,
           imageUrls: (data.imageUrls as string[]) ?? undefined,
+          postingRole: (data.postingRole as PostingRole | undefined) ?? undefined,
         };
       });
 

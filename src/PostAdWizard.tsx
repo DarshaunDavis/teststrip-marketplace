@@ -136,6 +136,8 @@ export default function PostAdWizard({
         isAnonymous: false,
         city: location === "Nationwide" ? "" : location,
         state: "",
+        // NEW: store which role created this posting
+        postingRole,
       });
 
       // 2) Upload images (optional)
