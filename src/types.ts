@@ -38,3 +38,15 @@ export interface BuyerAd {
   postingRole?: PostingRole;
   postType?: PostType;
 }
+
+export interface AdFilters {
+  zip: string;
+  search: string;
+  categoryDevices: boolean;
+  categorySupplies: boolean;
+  categoryTestStrips: boolean;
+  priceMin: string;
+  priceMax: string;
+  sortBy: "newest" | "highest";
+}
+

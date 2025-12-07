@@ -6,7 +6,7 @@ import { onValue, orderByChild, query, ref } from "firebase/database";
 import { useAuth } from "./authContext";
 import PostAdWizard from "./PostAdWizard";
 import { rtdb } from "./firebase";
-import type { AdCategory, BuyerAd, PostingRole } from "./types";
+import type { AdCategory, BuyerAd, PostingRole, AdFilters } from "./types";
 
 import Header from "./components/Header";
 import AuthPanel from "./components/AuthPanel";
@@ -100,6 +100,65 @@ const MOCK_ADS: BuyerAd[] = [
   },
 ];
 
+const DEFAULT_FILTERS: AdFilters = {
+  zip: "",
+  search: "",
+  categoryDevices: true,
+  categorySupplies: true,
+  categoryTestStrips: true,
+  priceMin: "",
+  priceMax: "",
+  sortBy: "newest",
+};
+
+function applyFiltersForFeed(
+  ads: BuyerAd[],
+  filters: AdFilters
+): BuyerAd[] {
+  let result = [...ads];
+
+  // Category filter
+  const allowedCategories: AdCategory[] = [];
+  if (filters.categoryDevices) allowedCategories.push("Devices");
+  if (filters.categorySupplies) allowedCategories.push("Supplies");
+  if (filters.categoryTestStrips) allowedCategories.push("Test Strips");
+
+  if (allowedCategories.length) {
+    result = result.filter((ad) => allowedCategories.includes(ad.category));
+  }
+
+  // Price filters
+  const min = filters.priceMin.trim() ? Number(filters.priceMin) : null;
+  const max = filters.priceMax.trim() ? Number(filters.priceMax) : null;
+
+  if (min !== null && !Number.isNaN(min)) {
+    result = result.filter((ad) => ad.price >= min);
+  }
+
+  if (max !== null && !Number.isNaN(max)) {
+    result = result.filter((ad) => ad.price <= max);
+  }
+
+  // Search (title + note)
+  const q = filters.search.trim().toLowerCase();
+  if (q) {
+    result = result.filter((ad) => {
+      const title = (ad.title ?? "").toLowerCase();
+      const note = (ad.note ?? "").toLowerCase();
+      return title.includes(q) || note.includes(q);
+    });
+  }
+
+  // Sort
+  if (filters.sortBy === "highest") {
+    result.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+  } else {
+    result.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  }
+
+  return result;
+}
+
 function App() {
   // include `role` from authContext
   const { user, loading, role } = useAuth();
@@ -127,24 +186,29 @@ function App() {
   const [guestPostingRole, setGuestPostingRole] =
     useState<PostingRole>("seller");
 
+  const [filters, setFilters] = useState<AdFilters>(DEFAULT_FILTERS);
+
   const isGuest = !user;
 
   const effectivePostingRole: PostingRole = isGuest
     ? guestPostingRole
     : role === "buyer"
-    ? "buyer"
-    : role === "wholesaler"
-    ? "wholesaler"
-    : "seller";
+      ? "buyer"
+      : role === "wholesaler"
+        ? "wholesaler"
+        : "seller";
 
-  const adsToShow: BuyerAd[] = ads.length ? ads : MOCK_ADS;
+  const adsBase: BuyerAd[] = ads.length ? ads : MOCK_ADS;
+
+  // adsBase is already role-based from earlier logic.
+  const filteredAds: BuyerAd[] = applyFiltersForFeed(adsBase, filters);
 
   const selectedAd =
-    selectedAdIndex !== null ? adsToShow[selectedAdIndex] : null;
+    selectedAdIndex !== null ? filteredAds[selectedAdIndex] : null;
 
   const hasPrev = selectedAdIndex !== null && selectedAdIndex > 0;
   const hasNext =
-    selectedAdIndex !== null && selectedAdIndex < adsToShow.length - 1;
+    selectedAdIndex !== null && selectedAdIndex < filteredAds.length - 1;
 
   useEffect(() => {
     const adsQuery = query(ref(rtdb, "ads"), orderByChild("createdAt"));
@@ -177,7 +241,7 @@ function App() {
           mainImageUrl: data.mainImageUrl ?? undefined,
           imageUrls: (data.imageUrls as string[]) ?? undefined,
           postingRole: (data.postingRole as PostingRole | undefined) ?? undefined,
-         };
+        };
       });
 
       list.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
@@ -188,7 +252,7 @@ function App() {
   }, []);
 
   const handleOpenAd = (index: number) => {
-    const ad = adsToShow[index];
+    const ad = filteredAds[index];
     setSelectedAdIndex(index);
     const firstImage =
       ad.mainImageUrl || (ad.imageUrls && ad.imageUrls[0]) || null;
@@ -203,7 +267,7 @@ function App() {
   const goPrev = () => {
     if (!hasPrev || selectedAdIndex === null) return;
     const nextIndex = selectedAdIndex - 1;
-    const ad = adsToShow[nextIndex];
+    const ad = filteredAds[nextIndex];
     const firstImage =
       ad.mainImageUrl || (ad.imageUrls && ad.imageUrls[0]) || null;
     setSelectedAdIndex(nextIndex);
@@ -213,7 +277,7 @@ function App() {
   const goNext = () => {
     if (!hasNext || selectedAdIndex === null) return;
     const nextIndex = selectedAdIndex + 1;
-    const ad = adsToShow[nextIndex];
+    const ad = filteredAds[nextIndex];
     const firstImage =
       ad.mainImageUrl || (ad.imageUrls && ad.imageUrls[0]) || null;
     setSelectedAdIndex(nextIndex);
@@ -327,9 +391,13 @@ function App() {
       <main className="tsm-main">
         {activeTab === "home" && (
           <>
-            <FiltersSidebar />
+            <FiltersSidebar
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={() => setFilters(DEFAULT_FILTERS)}
+            />
             <BuyerAdsFeed
-              ads={adsToShow}
+              ads={filteredAds}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
               onAdClick={handleOpenAd}
