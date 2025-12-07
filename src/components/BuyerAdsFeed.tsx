@@ -1,12 +1,15 @@
 // src/components/BuyerAdsFeed.tsx
 import React from "react";
-import type { BuyerAd } from "../types";
+import type { BuyerAd, UserRole } from "../types";
 
 interface BuyerAdsFeedProps {
   ads: BuyerAd[];
   viewMode: "list" | "gallery";
   onViewModeChange: (mode: "list" | "gallery") => void;
   onAdClick: (index: number) => void;
+  userRole: UserRole | null;
+  showAllAds: boolean;
+  onToggleShowAll: () => void;
 }
 
 const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
@@ -14,9 +17,52 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
   viewMode,
   onViewModeChange,
   onAdClick,
+  userRole,
+  showAllAds,
+  onToggleShowAll,
 }) => {
-  const premiumAds = ads.filter((ad) => ad.premium);
-  const normalAds = ads.filter((ad) => !ad.premium);
+  // Role-based filter for which ads appear in the feed
+  const filteredAds = ads.filter((ad) => {
+    // For now, treat missing postingRole as "buyer" to keep legacy ads visible
+    const postingRole = ad.postingRole ?? "buyer";
+
+    // Guests/admin/moderator see everything
+    if (!userRole) return true;
+    if (userRole === "admin" || userRole === "moderator") return true;
+
+    // When "See all ads" is OFF
+    if (!showAllAds) {
+      if (userRole === "seller") {
+        // sellers see only buyer ads
+        return postingRole === "buyer";
+      }
+      if (userRole === "buyer") {
+        // buyers see only seller ads
+        return postingRole === "seller";
+      }
+      if (userRole === "wholesaler") {
+        // wholesalers see only buyer ads
+        return postingRole === "buyer";
+      }
+      return true;
+    }
+
+    // When "See all ads" is ON
+    if (userRole === "seller" || userRole === "buyer") {
+      // sellers & buyers see buyer + seller ads
+      return postingRole === "buyer" || postingRole === "seller";
+    }
+    if (userRole === "wholesaler") {
+      // wholesalers see buyer + wholesaler ads
+      return postingRole === "buyer" || postingRole === "wholesaler";
+    }
+
+    return true;
+  });
+
+  // Premium vs normal ads from the filtered set
+  const premiumAds = filteredAds.filter((ad) => ad.premium);
+  const normalAds = filteredAds.filter((ad) => !ad.premium);
 
   // Always show at least 3 premium slots (real ads fill first, placeholders fill remaining)
   const PLACEHOLDER_COUNT = 3;
@@ -27,38 +73,74 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
     (_, index) => premiumAds[index] ?? null
   );
 
+  const filteredCount = filteredAds.length;
+
+  const showSeeAllToggle =
+    userRole === "seller" ||
+    userRole === "buyer" ||
+    userRole === "wholesaler";
+
   return (
     <section className="tsm-feed">
       <div className="tsm-feed-header">
         <div>
-          <h1 className="tsm-feed-title">Buyer Ads Near You</h1>
+          <h1 className="tsm-feed-title">Marketplace Ads Near You</h1>
           <p className="tsm-feed-subtitle">
-            {ads.length} buyer ads · nationwide ·{" "}
+            {filteredCount} ads · nationwide ·{" "}
             {viewMode === "list" ? "List view" : "Gallery view"}
           </p>
         </div>
 
-        <div className="tsm-view-toggle">
-          <button
-            className={`tsm-view-btn ${
-              viewMode === "list" ? "tsm-view-btn-active" : ""
-            }`}
-            onClick={() => onViewModeChange("list")}
-          >
-            List
-          </button>
-          <button
-            className={`tsm-view-btn ${
-              viewMode === "gallery" ? "tsm-view-btn-active" : ""
-            }`}
-            onClick={() => onViewModeChange("gallery")}
-          >
-            Gallery
-          </button>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "0.35rem",
+          }}
+        >
+          {showSeeAllToggle && (
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                fontSize: "0.8rem",
+                color: "#4b5563",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={showAllAds}
+                onChange={onToggleShowAll}
+                style={{ cursor: "pointer" }}
+              />
+              <span>See all ads</span>
+            </label>
+          )}
+
+          <div className="tsm-view-toggle">
+            <button
+              className={`tsm-view-btn ${
+                viewMode === "list" ? "tsm-view-btn-active" : ""
+              }`}
+              onClick={() => onViewModeChange("list")}
+            >
+              List
+            </button>
+            <button
+              className={`tsm-view-btn ${
+                viewMode === "gallery" ? "tsm-view-btn-active" : ""
+              }`}
+              onClick={() => onViewModeChange("gallery")}
+            >
+              Gallery
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* PREMIUM SECTION */}
+      {/* Premium section */}
       <div className="tsm-section-label">
         <span>Premium Ads</span>
         <span className="tsm-section-label-right">Sponsored</span>
@@ -73,7 +155,7 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
       >
         {premiumDisplay.map((adOrNull, index) => {
           if (adOrNull === null) {
-            // PLACEHOLDER SPOT
+            // Placeholder premium slot
             return (
               <article
                 key={`ph-${index}`}
@@ -109,7 +191,6 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
             );
           }
 
-          // REAL PREMIUM AD
           const ad = adOrNull;
           const coverImage =
             ad.mainImageUrl ||
@@ -161,9 +242,12 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
         })}
       </div>
 
-      {/* REGULAR ADS SECTION */}
-      <div className="tsm-section-label" style={{ marginTop: "1.5rem" }}>
-        <span>All Buyer Ads</span>
+      {/* All non-premium ads */}
+      <div
+        className="tsm-section-label"
+        style={{ marginTop: "1.5rem" }}
+      >
+        <span>All Ads</span>
       </div>
 
       <div
@@ -173,7 +257,7 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
             : "tsm-card-grid-gallery"
         }`}
       >
-        {normalAds.map((ad, index) => {
+        {normalAds.map((ad) => {
           const coverImage =
             ad.mainImageUrl ||
             (ad.imageUrls && ad.imageUrls.length > 0

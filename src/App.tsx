@@ -112,13 +112,16 @@ function App() {
   >("home");
 
   const [showPostWizard, setShowPostWizard] = useState(false);
-  const [showAdminPostWizard, setShowAdminPostWizard] = useState(false); // 👈 NEW
+  const [showAdminPostWizard, setShowAdminPostWizard] = useState(false);
 
   const [ads, setAds] = useState<BuyerAd[]>([]);
   const [viewMode, setViewMode] = useState<"list" | "gallery">("gallery");
 
   const [selectedAdIndex, setSelectedAdIndex] = useState<number | null>(null);
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
+
+  // See-all-ads toggle (role-based filtering)
+  const [showAllAds, setShowAllAds] = useState(false);
 
   // Guests can choose seller/buyer; logged-in users are locked to their auth role
   const [guestPostingRole, setGuestPostingRole] =
@@ -174,7 +177,7 @@ function App() {
           mainImageUrl: data.mainImageUrl ?? undefined,
           imageUrls: (data.imageUrls as string[]) ?? undefined,
           postingRole: (data.postingRole as PostingRole | undefined) ?? undefined,
-        };
+         };
       });
 
       list.sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
@@ -330,6 +333,9 @@ function App() {
               viewMode={viewMode}
               onViewModeChange={setViewMode}
               onAdClick={handleOpenAd}
+              userRole={role}
+              showAllAds={showAllAds}
+              onToggleShowAll={() => setShowAllAds((prev) => !prev)}
             />
           </>
         )}
