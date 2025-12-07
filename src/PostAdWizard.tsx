@@ -30,6 +30,7 @@ export default function PostAdWizard({
   const [price, setPrice] = useState("");
   const [zip, setZip] = useState("");
   const [contactEmail, setContactEmail] = useState(defaultEmail);
+  const [contactPhone, setContactPhone] = useState("");
 
   // Step 3: description / ad copy
   const [description, setDescription] = useState("");
@@ -109,8 +110,13 @@ export default function PostAdWizard({
       return;
     }
 
-    if (!contactEmail) {
-      setError("Please provide a contact email.");
+    const hasEmail = contactEmail.trim().length > 0;
+    const hasPhone = contactPhone.trim().length > 0;
+
+    if (!hasEmail && !hasPhone) {
+      setError(
+        "Please provide at least an email or phone number so buyers can reach you."
+      );
       return;
     }
 
@@ -123,7 +129,8 @@ export default function PostAdWizard({
         category,
         zip,
         price: priceNum,
-        contactEmail,
+        contactEmail: hasEmail ? contactEmail.trim() : undefined,
+        contactPhone: hasPhone ? contactPhone.trim() : undefined,
         note: description,
         ownerUid: ownerUid ?? null,
         isAnonymous: false,
@@ -141,7 +148,6 @@ export default function PostAdWizard({
         }
       }
 
-      // Dynamic success message based on postingRole
       const niceLabel =
         postingRole === "seller"
           ? "sell ad"
@@ -305,13 +311,33 @@ export default function PostAdWizard({
           </div>
 
           <div className="tsm-filter-group">
-            <label className="tsm-label">Contact email</label>
+            <label className="tsm-label">
+              Contact email{" "}
+              <span style={{ fontWeight: 400, color: "#6b7280" }}>
+                (optional if you provide a phone)
+              </span>
+            </label>
             <input
               className="tsm-input"
               type="email"
-              required
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="tsm-filter-group">
+            <label className="tsm-label">
+              Contact phone{" "}
+              <span style={{ fontWeight: 400, color: "#6b7280" }}>
+                (optional if you provide an email)
+              </span>
+            </label>
+            <input
+              className="tsm-input"
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              placeholder="e.g., (555) 123-4567"
             />
           </div>
         </div>
