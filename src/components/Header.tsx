@@ -1,6 +1,7 @@
 // src/components/Header.tsx
 import React from "react";
 import type { PostingRole, UserRole } from "../types";
+import logo from "../assets/logo.png";
 
 interface HeaderProps {
   activeTab: "home" | "sell" | "messages" | "admin";
@@ -51,12 +52,19 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className="tsm-header">
       <div
-  className="tsm-header-left tsm-logo-clickable"
+  className="tsm-header-brand"
   onClick={() => onTabChange("home")}
-  style={{ cursor: "pointer" }}
+  style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}
 >
-  <div className="tsm-logo-circle">TS</div>
-  <div className="tsm-logo-text">Test Strip Marketplace</div>
+  <img
+    src={logo}
+    alt="Test Strip Marketplace logo"
+    style={{
+      height: "50px",
+      width: "auto",
+      objectFit: "contain",
+    }}
+  />
 </div>
 
       <nav className="tsm-nav-links">
