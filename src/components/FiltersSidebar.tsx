@@ -1,6 +1,8 @@
 // src/components/FiltersSidebar.tsx
-import React from "react";
+import React, { useState } from "react";
 import type { AdFilters } from "../types";
+import { rtdb } from "../firebase";
+import { ref as rtdbRef, get } from "firebase/database";
 
 interface FiltersSidebarProps {
   filters: AdFilters;
@@ -13,15 +15,66 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
   onFiltersChange,
   onReset,
 }) => {
+  const [zipHelp, setZipHelp] = useState<string>(
+    "No ZIP set — showing the latest nationwide ads."
+  );
+  const [zipLookupBusy, setZipLookupBusy] = useState(false);
+
   const handleChange = (patch: Partial<AdFilters>) => {
     onFiltersChange({ ...filters, ...patch });
+  };
+
+  const handleZipChange = async (value: string) => {
+    handleChange({ zip: value });
+
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      setZipHelp("No ZIP set — showing the latest nationwide ads.");
+      return;
+    }
+
+    // Only try lookup for 5-digit numeric ZIPs
+    if (!/^\d{5}$/.test(trimmed)) {
+      setZipHelp("Enter a 5-digit ZIP to narrow ads near you.");
+      return;
+    }
+
+    try {
+      setZipLookupBusy(true);
+      const snap = await get(rtdbRef(rtdb, `zipcodes/${trimmed}`));
+
+      if (snap.exists()) {
+        const data = snap.val() as {
+          city?: string;
+          state?: string;
+        };
+
+        if (data?.city && data?.state) {
+          setZipHelp(
+            `Showing ads in or near ${data.city}, ${data.state} (${trimmed}).`
+          );
+        } else {
+          setZipHelp(`Showing ads in or near ZIP ${trimmed}.`);
+        }
+      } else {
+        setZipHelp(
+          `ZIP ${trimmed} not found in our database — showing nationwide ads.`
+        );
+      }
+    } catch (err) {
+      console.error("[FiltersSidebar] ZIP lookup failed", err);
+      setZipHelp("Trouble looking up ZIP — showing nationwide ads.");
+    } finally {
+      setZipLookupBusy(false);
+    }
   };
 
   return (
     <aside className="tsm-filters">
       <h3 className="tsm-filters-title">Filters</h3>
 
-      {/* ZIP + Nationwide (stacked) – still cosmetic for now */}
+      {/* ZIP + “Nationwide” label */}
       <div className="tsm-filter-group">
         <label className="tsm-label">My ZIP (optional)</label>
         <div className="tsm-zip-group">
@@ -29,18 +82,14 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
             className="tsm-input"
             placeholder="e.g., 30301"
             value={filters.zip}
-            onChange={(e) => handleChange({ zip: e.target.value })}
+            onChange={(e) => void handleZipChange(e.target.value)}
           />
-          <select
-            className="tsm-select"
-            value="Nationwide"
-            disabled // ⬅️ changed from readOnly to disabled
-          >
+          <select className="tsm-select" value="Nationwide" disabled>
             <option>Nationwide</option>
           </select>
         </div>
         <p className="tsm-help-text">
-          No ZIP set — showing the latest nationwide ads.
+          {zipLookupBusy ? "Looking up that ZIP..." : zipHelp}
         </p>
       </div>
 
@@ -139,7 +188,7 @@ const FiltersSidebar: React.FC<FiltersSidebarProps> = ({
 
       {/* Buttons */}
       <div className="tsm-filter-actions">
-        {/* Filters apply instantly when changed; Apply is a no-op for now */}
+        {/* Filters apply instantly; Apply stays a visual hint for now */}
         <button
           className="tsm-btn-primary"
           type="button"
