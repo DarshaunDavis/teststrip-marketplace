@@ -24,3 +24,7 @@ build/
 *.njsproj
 *.sln
 *.sw?
+2023_Gaz_zcta_national.*
+us-zipcodes.json
+serviceAccountKey.json
+serviceAccountKey.json.json
