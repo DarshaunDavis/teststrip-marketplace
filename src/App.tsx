@@ -111,18 +111,13 @@ const DEFAULT_FILTERS: AdFilters = {
   sortBy: "newest",
 };
 
-function applyFiltersForFeed(
-  ads: BuyerAd[],
-  filters: AdFilters
-): BuyerAd[] {
+function applyFiltersForFeed(ads: BuyerAd[], filters: AdFilters): BuyerAd[] {
   let result = [...ads];
 
   // ── ZIP filter (exact 5-digit match) ─────────────────────────
   const zipTrim = filters.zip.trim();
   if (zipTrim && /^\d{5}$/.test(zipTrim)) {
-    result = result.filter(
-      (ad) => (ad.zip ?? "").trim() === zipTrim
-    );
+    result = result.filter((ad) => (ad.zip ?? "").trim() === zipTrim);
   }
 
   // ── Category filter ──────────────────────────────────────────
@@ -168,12 +163,10 @@ function applyFiltersForFeed(
 }
 
 function App() {
-  // include `role` from authContext
   const { user, loading, role } = useAuth();
 
   const [showAuthPanel, setShowAuthPanel] = useState(false);
 
-  // 👇 add "admin" to the union
   const [activeTab, setActiveTab] = useState<
     "home" | "sell" | "messages" | "admin"
   >("home");
@@ -201,14 +194,13 @@ function App() {
   const effectivePostingRole: PostingRole = isGuest
     ? guestPostingRole
     : role === "buyer"
-      ? "buyer"
-      : role === "wholesaler"
-        ? "wholesaler"
-        : "seller";
+    ? "buyer"
+    : role === "wholesaler"
+    ? "wholesaler"
+    : "seller";
 
   const adsBase: BuyerAd[] = ads.length ? ads : MOCK_ADS;
 
-  // adsBase is already role-based from earlier logic.
   const filteredAds: BuyerAd[] = applyFiltersForFeed(adsBase, filters);
 
   const selectedAd =
@@ -248,7 +240,8 @@ function App() {
           createdAt: data.createdAt ?? null,
           mainImageUrl: data.mainImageUrl ?? undefined,
           imageUrls: (data.imageUrls as string[]) ?? undefined,
-          postingRole: (data.postingRole as PostingRole | undefined) ?? undefined,
+          postingRole:
+            (data.postingRole as PostingRole | undefined) ?? undefined,
         };
       });
 
@@ -292,19 +285,21 @@ function App() {
     setActiveImageUrl(firstImage);
   };
 
+  // Shared logic for "Post" from header + FAB
+  const handlePostClick = () => {
+    if (!user) {
+      setShowAuthPanel(true);
+    } else {
+      setShowPostWizard(true);
+    }
+  };
+
   return (
     <div className="tsm-app">
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onPostClick={() => {
-          if (!user) {
-            // not logged in → show auth panel instead of post wizard
-            setShowAuthPanel(true);
-          } else {
-            setShowPostWizard(true);
-          }
-        }}
+        onPostClick={handlePostClick}
         onAccountClick={() => setShowAuthPanel((v) => !v)}
         userEmail={user?.email ?? null}
         loading={loading}
@@ -320,6 +315,11 @@ function App() {
         }}
       />
 
+      {/* Mobile floating Post Ad button (hidden on desktop via CSS) */}
+      <button className="tsm-fab-post-ad" onClick={handlePostClick}>
+        Post Ad
+      </button>
+
       {/* AUTH MODAL */}
       {showAuthPanel && (
         <div
@@ -328,10 +328,7 @@ function App() {
           role="dialog"
           aria-modal="true"
         >
-          <div
-            className="tsm-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
             <AuthPanel onClose={() => setShowAuthPanel(false)} />
           </div>
         </div>
@@ -345,10 +342,7 @@ function App() {
           role="dialog"
           aria-modal="true"
         >
-          <div
-            className="tsm-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
             <PostAdWizard
               onClose={() => setShowPostWizard(false)}
               defaultEmail={user?.email ?? ""}
@@ -367,15 +361,12 @@ function App() {
           role="dialog"
           aria-modal="true"
         >
-          <div
-            className="tsm-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
             <PostAdWizard
               onClose={() => setShowAdminPostWizard(false)}
-              defaultEmail={""}              // start blank
-              ownerUid={null}                 // 👈 unclaimed
-              postingRole={"buyer"}           // 👈 always buyer ad for now
+              defaultEmail={""} // start blank
+              ownerUid={null} // 👈 unclaimed
+              postingRole={"buyer"} // 👈 always buyer ad for now
             />
           </div>
         </div>
