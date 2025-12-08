@@ -309,7 +309,8 @@
 
 .tsm-ad-image-placeholder {
   height: 150px;
-  background: radial-gradient(circle at top, rgba(99, 178, 252, 0.18), rgba(148, 163, 184, 0.1)),
+  background:
+    radial-gradient(circle at top, rgba(99, 178, 252, 0.18), rgba(148, 163, 184, 0.1)),
     linear-gradient(135deg, #f9fafb, #e5f0ff);
 }
 
@@ -367,6 +368,12 @@
   font-size: 0.78rem;
 }
 
+/* Desktop premium card height */
+.tsm-card-grid-premium .tsm-ad-card,
+.tsm-card-grid-premium .tsm-ad-card-premium-placeholder {
+  min-height: 150px;
+}
+
 /* FOOTER -------------------------------------------------------------- */
 
 .tsm-footer {
@@ -392,12 +399,6 @@
   cursor: pointer;
   font-size: 0.8rem;
   color: #4b5563;
-}
-
-/* Ensure premium cards have a comfortable height on desktop */
-.tsm-card-grid-premium .tsm-ad-card,
-.tsm-card-grid-premium .tsm-ad-card-premium-placeholder {
-  min-height: 150px;
 }
 
 /* RESPONSIVE ---------------------------------------------------------- */
@@ -463,9 +464,9 @@
   /* Smaller premium cards (mobile-only) */
   .tsm-card-grid-premium .tsm-ad-card,
   .tsm-card-grid-premium .tsm-ad-card-premium-placeholder {
-    min-width: 140px; /* was 260px */
-    max-width: 150px; /* clamp size */
-    min-height: 90px; /* was 150px */
+    min-width: 140px;
+    max-width: 150px;
+    min-height: 90px;
     flex: 0 0 auto;
     scroll-snap-align: start;
     padding: 0.75rem !important;
@@ -485,8 +486,37 @@
     text-align: center;
   }
 
+  /* Mobile header: two-row, app-like layout */
   .tsm-header {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem 0.4rem;
+    flex-wrap: wrap;
+    row-gap: 0.4rem;
+    column-gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .tsm-header-left {
+    flex: 1 1 auto;
+  }
+
+  .tsm-logo-circle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .tsm-logo-text {
+    font-size: 0.9rem;
+  }
+
+  .tsm-header-right {
+    font-size: 0.8rem;
+  }
+
+  .tsm-nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 0.4rem;
   }
 
   .tsm-footer {
@@ -515,10 +545,10 @@
   box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
 
   /* NEW WIDTH (was huge before) */
-  max-width: 560px; /* perfect size for login modals */
-  width: 90%; /* mobile friendly */
+  max-width: 560px;             /* perfect size for login modals */
+  width: 90%;                   /* mobile friendly */
 
-  padding: 1.5rem; /* more breathing room */
+  padding: 1.5rem;              /* more breathing room */
   max-height: calc(100vh - 6rem);
   overflow-y: auto;
 }
@@ -699,7 +729,6 @@
   border-color: #e5e7eb;
 }
 
-/* Role switcher in header */
 /* Role switch / badge in header */
 .tsm-role-switch {
   display: flex;
