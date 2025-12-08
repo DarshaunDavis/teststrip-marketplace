@@ -147,7 +147,7 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
       </div>
 
       <div
-        className={`tsm-card-grid ${
+        className={`tsm-card-grid tsm-card-grid-premium ${
           viewMode === "list"
             ? "tsm-card-grid-list"
             : "tsm-card-grid-gallery"
@@ -164,27 +164,15 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
                   cursor: "default",
                   display: "flex",
                   flexDirection: "column",
-                  border: "2px dashed #cbd5e1",
-                  borderRadius: "0.75rem",
-                  padding: "1rem",
                   justifyContent: "center",
                   alignItems: "center",
-                  textAlign: "center",
-                  background: "linear-gradient(135deg, #f8fafc, #f1f5f9)",
-                  minHeight: 180,
+                  padding: "1.25rem",
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    color: "#475569",
-                    marginBottom: "0.25rem",
-                  }}
-                >
+                <div className="tsm-ad-premium-placeholder-title">
                   Premium Spot Available
                 </div>
-                <div style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                <div className="tsm-ad-premium-placeholder-subtitle">
                   Your ad could be featured here.
                 </div>
               </article>
@@ -192,18 +180,20 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
           }
 
           const ad = adOrNull;
-          const coverImage =
-            ad.mainImageUrl ||
-            (ad.imageUrls && ad.imageUrls.length > 0
-              ? ad.imageUrls[0]
-              : null);
+          const coverImage = ad.imageUrls?.[0];
 
           return (
             <article
               key={ad.id}
-              className="tsm-ad-card"
-              onClick={() => onAdClick(ads.indexOf(ad))}
-              style={{ cursor: "pointer" }}
+              className="tsm-ad-card tsm-ad-card-premium"
+              onClick={() => {
+                const indexInFiltered = filteredAds.findIndex(
+                  (x) => x.id === ad.id
+                );
+                if (indexInFiltered >= 0) {
+                  onAdClick(indexInFiltered);
+                }
+              }}
             >
               {viewMode === "gallery" && (
                 <div className="tsm-ad-image-placeholder">
