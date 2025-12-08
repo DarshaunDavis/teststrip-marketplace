@@ -520,10 +520,47 @@
     width: 100%;
     justify-content: center;
     gap: 0.4rem;
+    padding-bottom: 0.25rem;
   }
 
   .tsm-footer {
     padding: 0.75rem 1rem;
+  }
+
+  /* Floating "+ Post Ad" pill button on mobile
+     Uses the 2nd nav button (assumed to be "Post") */
+  .tsm-nav-links button:nth-child(2) {
+    position: fixed;
+    right: 1rem;
+    bottom: 4.5rem; /* sits above bottom chrome / footer area */
+    z-index: 30;
+    background: #0082fc;
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 0.6rem 1.15rem;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.35);
+    font-size: 0; /* hide original label text, replace with pseudo-elements */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+
+  .tsm-nav-links button:nth-child(2)::before {
+    content: "+";
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .tsm-nav-links button:nth-child(2)::after {
+    content: "Post Ad";
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .tsm-nav-links button:nth-child(2):active {
+    transform: translateY(1px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.28);
   }
 }
 
