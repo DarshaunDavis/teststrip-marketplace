@@ -52,10 +52,20 @@ export default function PostAdWizard({
       ? "buy ad"
       : "network ad";
 
+  // ─────────────────────────────────────────────
   // Basic step-level validation
+  // ─────────────────────────────────────────────
+
   const canGoNextFromStep1 = !!location;
+
+  // Title required, price optional, but if present must be a valid non-negative number
+  const titleTrim = title.trim();
+  const priceTrim = price.trim();
   const canGoNextFromStep2 =
-    !!title && !!price && !Number.isNaN(Number(price)) && Number(price) > 0;
+    !!titleTrim &&
+    (priceTrim === "" ||
+      (!Number.isNaN(Number(priceTrim)) && Number(priceTrim) >= 0));
+
   const canGoNextFromStep3 = !!description;
 
   const handleNext = () => {
@@ -65,7 +75,11 @@ export default function PostAdWizard({
     if (step === 1 && !canGoNextFromStep1) return;
 
     if (step === 2 && !canGoNextFromStep2) {
-      setError("Please provide a title and a valid price.");
+      if (!titleTrim) {
+        setError("Please provide a title.");
+      } else {
+        setError("Please enter a valid price or leave it blank.");
+      }
       return;
     }
 
@@ -104,10 +118,24 @@ export default function PostAdWizard({
     setError(null);
     setSuccess(null);
 
-    const priceNum = Number(price);
-    if (!title || !price || Number.isNaN(priceNum) || priceNum <= 0) {
-      setError("Please enter a valid title and price.");
+    const titleTrimLocal = title.trim();
+    const priceTrimLocal = price.trim();
+
+    // Title still required at publish time
+    if (!titleTrimLocal) {
+      setError("Please provide a title.");
       return;
+    }
+
+    // Price optional, but if provided must be valid
+    let priceNum: number | undefined;
+    if (priceTrimLocal !== "") {
+      const parsed = Number(priceTrimLocal);
+      if (Number.isNaN(parsed) || parsed < 0) {
+        setError("Please enter a valid price or leave it blank.");
+        return;
+      }
+      priceNum = parsed;
     }
 
     const hasEmail = contactEmail.trim().length > 0;
@@ -124,11 +152,11 @@ export default function PostAdWizard({
     try {
       // 1) Create the ad in Realtime DB
       const adId = await createBuyerAd({
-        title,
+        title: titleTrimLocal,
         productType: category,
         category,
         zip,
-        price: priceNum,
+        ...(priceNum !== undefined ? { price: priceNum } : {}),
         contactEmail: hasEmail ? contactEmail.trim() : undefined,
         contactPhone: hasPhone ? contactPhone.trim() : undefined,
         note: description,
@@ -136,7 +164,7 @@ export default function PostAdWizard({
         isAnonymous: false,
         city: location === "Nationwide" ? "" : location,
         state: "",
-        // NEW: store which role created this posting
+        // store which role created this posting
         postingRole,
       });
 
@@ -293,7 +321,12 @@ export default function PostAdWizard({
           </div>
 
           <div className="tsm-filter-group">
-            <label className="tsm-label">Price you&apos;re offering ($)</label>
+            <label className="tsm-label">
+              Price you&apos;re offering ($){" "}
+              <span style={{ fontWeight: 400, color: "#6b7280" }}>
+                (optional)
+              </span>
+            </label>
             <input
               className="tsm-input"
               value={price}

@@ -29,7 +29,7 @@ export interface CreateBuyerAdInput {
   productType: string;
   category: string;
   zip: string;
-  price: number;
+  price?: number | null;
   // At least one of these should be provided by the UI
   contactEmail?: string;
   contactPhone?: string;
@@ -48,14 +48,31 @@ export interface CreateBuyerAdInput {
 // ─────────────────────────────────────────────
 
 export async function createBuyerAd(input: CreateBuyerAdInput): Promise<string> {
-  // ads/{autoId}
   const adsRef = rtdbRef(rtdb, "ads");
   const newAdRef = push(adsRef);
 
-  const payload = {
-    ...input,
+  // Remove undefined fields so RTDB doesn’t reject them
+  const {
+    contactEmail,
+    contactPhone,
+    note,
+    price,
+    ...rest
+  } = input;
+
+  const payload: any = {
+    ...rest,
     createdAt: Date.now(),
   };
+
+  // Only include price if defined AND valid
+  if (typeof price === "number" && !Number.isNaN(price)) {
+    payload.price = Number(price);
+  }
+
+  if (contactEmail) payload.contactEmail = contactEmail;
+  if (contactPhone) payload.contactPhone = contactPhone;
+  if (note) payload.note = note;
 
   await set(newAdRef, payload);
 
@@ -63,6 +80,7 @@ export async function createBuyerAd(input: CreateBuyerAdInput): Promise<string> 
 
   return newAdRef.key as string;
 }
+
 
 // ─────────────────────────────────────────────
 // Firestore: analytics collection (optional)
