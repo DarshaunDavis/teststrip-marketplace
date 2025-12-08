@@ -1,7 +1,7 @@
 // src/LocationSeeder.tsx
 import { useState } from "react";
 import { ref, update } from "firebase/database";
-import { db } from "./firebase";
+import { rtdb } from "./firebase";
 import { STATE_CITY_DATA } from "./locationData";
 
 export default function LocationSeeder() {
@@ -34,7 +34,7 @@ export default function LocationSeeder() {
         });
       });
 
-      await update(ref(db), updates);
+      await update(ref(rtdb), updates);
 
       setStatus("done");
       setMessage(

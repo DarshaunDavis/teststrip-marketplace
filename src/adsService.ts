@@ -96,6 +96,9 @@ export async function uploadAdImages(
 ): Promise<string[]> {
   if (!files.length) return [];
 
+  // Use ownerUid so TypeScript doesn't flag it as unused
+  console.log("[uploadAdImages] for ad", adId, "ownerUid:", ownerUid ?? "null");
+
   const urls: string[] = [];
 
   for (const file of files) {
