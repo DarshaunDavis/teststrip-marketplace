@@ -1,8 +1,11 @@
 // src/PostAdWizard.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import { createBuyerAd, uploadAdImages, attachImagesToAd } from "./adsService";
 import type { AdCategory, PostingRole } from "./types";
+import { rtdb } from "./firebase";
+import { ref as rtdbRef, onValue } from "firebase/database";
+
 
 type WizardStep = 1 | 2 | 3 | 4;
 
@@ -13,6 +16,11 @@ interface PostAdWizardProps {
   postingRole: PostingRole;
 }
 
+type StateOption = {
+  code: string;
+  name: string;
+};
+
 export default function PostAdWizard({
   onClose,
   defaultEmail,
@@ -22,7 +30,10 @@ export default function PostAdWizard({
   const [step, setStep] = useState<WizardStep>(1);
 
   // Step 1: location (Craigslist-style "where is this posting?")
-  const [location, setLocation] = useState<string>("Nationwide");
+  const [location, setLocation] = useState<string>("");
+  const [states, setStates] = useState<StateOption[]>([]);
+  const [statesLoading, setStatesLoading] = useState(true);
+  const [statesError, setStatesError] = useState<string | null>(null);
 
   // Step 2: core ad details
   const [title, setTitle] = useState("");
@@ -49,14 +60,45 @@ export default function PostAdWizard({
     postingRole === "seller"
       ? "sell ad"
       : postingRole === "buyer"
-      ? "buy ad"
-      : "network ad";
+        ? "buy ad"
+        : "network ad";
+
+  useEffect(() => {
+    const statesRef = rtdbRef(rtdb, "locations/states");
+    setStatesLoading(true);
+    setStatesError(null);
+
+    const unsubscribe = onValue(
+      statesRef,
+      (snap) => {
+        if (!snap.exists()) {
+          setStates([]);
+          setStatesLoading(false);
+          return;
+        }
+
+        const raw = snap.val() as Record<string, { code: string; name: string }>;
+        const arr: StateOption[] = Object.values(raw).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+
+        setStates(arr);
+        setStatesLoading(false);
+      },
+      (err) => {
+        console.error("[PostAdWizard] failed to load states", err);
+        setStatesError("Unable to load states right now.");
+        setStatesLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
 
   // ─────────────────────────────────────────────
   // Basic step-level validation
   // ─────────────────────────────────────────────
-
-  const canGoNextFromStep1 = !!location;
 
   // Title required, price optional, but if present must be a valid non-negative number
   const titleTrim = title.trim();
@@ -66,7 +108,9 @@ export default function PostAdWizard({
     (priceTrim === "" ||
       (!Number.isNaN(Number(priceTrim)) && Number(priceTrim) >= 0));
 
+  const canGoNextFromStep1 = !!location; // must have a state selected
   const canGoNextFromStep3 = !!description;
+
 
   const handleNext = () => {
     setError(null);
@@ -162,8 +206,8 @@ export default function PostAdWizard({
         note: description,
         ownerUid: ownerUid ?? null,
         isAnonymous: false,
-        city: location === "Nationwide" ? "" : location,
-        state: "",
+        city: "",
+        state: location || "",
         // store which role created this posting
         postingRole,
       });
@@ -182,8 +226,8 @@ export default function PostAdWizard({
         postingRole === "seller"
           ? "sell ad"
           : postingRole === "buyer"
-          ? "buy ad"
-          : "network ad";
+            ? "buy ad"
+            : "network ad";
 
       setSuccess(`Your ${niceLabel} has been posted.`);
 
@@ -257,30 +301,38 @@ export default function PostAdWizard({
         </p>
       )}
 
-      {/* STEP 1 – Location */}
+      {/* STEP 1 – Location (statewide) */}
       {step === 1 && (
         <div>
           <h2 className="tsm-wizard-title">Where is this posting?</h2>
           <p className="tsm-wizard-subtitle">
-            This is like choosing a Craigslist city (e.g., Bronx / NYC).
+            For now we&apos;re keeping it simple: choose the state this ad applies
+            to.
           </p>
 
           <div className="tsm-filter-group">
-            <label className="tsm-label">Location</label>
+            <label className="tsm-label">State</label>
             <select
               className="tsm-select"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             >
-              <option value="Nationwide">Nationwide</option>
-              <option value="New York Metro">New York Metro</option>
-              <option value="Atlanta Metro">Atlanta Metro</option>
-              <option value="Dallas / Fort Worth">Dallas / Fort Worth</option>
-              <option value="Los Angeles Metro">Los Angeles Metro</option>
+              <option value="">Select a state</option>
+              {states.map((state) => (
+                <option key={state.code} value={state.code}>
+                  {state.name}
+                </option>
+              ))}
             </select>
-            <p className="tsm-help-text">
-              We&apos;ll expand and link ZIP codes later as the database grows.
-            </p>
+
+            {statesLoading && (
+              <p className="tsm-help-text">Loading states...</p>
+            )}
+            {statesError && (
+              <p className="tsm-help-text" style={{ color: "#b91c1c" }}>
+                {statesError}
+              </p>
+            )}
           </div>
         </div>
       )}
