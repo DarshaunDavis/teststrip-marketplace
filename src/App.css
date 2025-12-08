@@ -305,6 +305,7 @@
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .tsm-ad-image-placeholder {
@@ -332,6 +333,8 @@
 .tsm-ad-title {
   margin: 0;
   font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .tsm-pill {
@@ -524,6 +527,19 @@
   }
 }
 
+/* Desktop hover treatment for cards ---------------------------------- */
+@media (min-width: 901px) {
+  .tsm-ad-card {
+    transition: box-shadow 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+  }
+
+  .tsm-ad-card:hover {
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+    transform: translateY(-2px);
+    border-color: #d1d5db;
+  }
+}
+
 /* ─────────────────────────────── */
 /* Modal overlay for auth panel    */
 /* ─────────────────────────────── */
@@ -545,10 +561,10 @@
   box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
 
   /* NEW WIDTH (was huge before) */
-  max-width: 560px;             /* perfect size for login modals */
-  width: 90%;                   /* mobile friendly */
+  max-width: 560px; /* perfect size for login modals */
+  width: 90%; /* mobile friendly */
 
-  padding: 1.5rem;              /* more breathing room */
+  padding: 1.5rem; /* more breathing room */
   max-height: calc(100vh - 6rem);
   overflow-y: auto;
 }
