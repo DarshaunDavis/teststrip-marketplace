@@ -9,6 +9,7 @@ import { rtdb } from "./firebase";
 import type { AdCategory, BuyerAd, PostingRole, AdFilters } from "./types";
 
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import AuthPanel from "./components/AuthPanel";
 import FiltersSidebar from "./components/FiltersSidebar";
 import BuyerAdsFeed from "./components/BuyerAdsFeed";
@@ -531,14 +532,8 @@ function App() {
         </div>
       )}
 
-      <footer className="tsm-footer">
-        <span>© 2025 Test Strip Marketplace</span>
-        <div className="tsm-footer-links">
-          <button>Privacy</button>
-          <button>Terms</button>
-          <button>Contact</button>
-        </div>
-      </footer>
+      
+    <Footer />
     </div>
   );
 }

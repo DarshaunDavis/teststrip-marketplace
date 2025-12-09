@@ -5,14 +5,31 @@ import App from "./App";
 import "./index.css";
 import { AuthProvider } from "./authContext";
 import LislalCallback from "./LislalCallback";
+import TermsPage from "./pages/TermsPage.tsx";
+import PrivacyPage from "./pages/PrivacyPage.tsx";
 
+const pathname = window.location.pathname;
 
-const isLislalCallback = window.location.pathname === "/lislal-callback";
+const isLislalCallback = pathname === "/lislal-callback";
+const isTermsPage = pathname === "/terms";
+const isPrivacyPage = pathname === "/privacy";
+
+let RootComponent: React.ReactNode;
+
+if (isLislalCallback) {
+  RootComponent = <LislalCallback />;
+} else if (isTermsPage) {
+  RootComponent = <TermsPage />;
+} else if (isPrivacyPage) {
+  RootComponent = <PrivacyPage />;
+} else {
+  RootComponent = <App />;
+}
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
-      {isLislalCallback ? <LislalCallback /> : <App />}
+      {RootComponent}
     </AuthProvider>
   </React.StrictMode>
 );

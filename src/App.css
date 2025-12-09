@@ -435,18 +435,64 @@
 
 .tsm-footer {
   border-top: 1px solid #e5e7eb;
-  padding: 0.75rem 3rem;
   background: #ffffff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: #6b7280;
+  padding: 0.75rem 1rem;
+  width: 100%;
 }
 
+.tsm-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;             /* prevents overflow on small screens */
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  box-sizing: border-box;
+}
+
+.tsm-footer-copy {
+  min-width: 0;
+}
+
+/* HORIZONTAL NAV */
 .tsm-footer-links {
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-start;  /* keeps links away from FAB area */
+}
+
+.tsm-footer-link {
+  font-size: 0.8rem;
+  color: #4b5563;
+  text-decoration: none;
+}
+
+.tsm-footer-links a {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #4b5563;
+  text-decoration: none;
+}
+
+.tsm-footer-link:hover {
+  text-decoration: underline;
+}
+
+/* On very small screens, allow stacking but keep links horizontal */
+@media (max-width: 640px) {
+  .tsm-footer-inner {
+    flex-direction: row;
+    align-items: center;
+  }
 }
 
 .tsm-footer-links button {
@@ -463,6 +509,10 @@
 /* Base for mobile filters drawer (hidden by default, enabled in media) */
 .tsm-filters-mobile-overlay {
   display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  z-index: 40;
 }
 
 @media (max-width: 900px) {
@@ -1335,4 +1385,48 @@
   padding: 0.55rem 0.4rem;   /* a bit tighter so 3 fit comfortably */
 }
 
+/* LEGAL LAYOUT OVERRIDES ---------------------------------------------- */
 
+/* Make legal pages use a simple centered layout instead of the home flex layout */
+.tsm-main.tsm-main-legal {
+  display: block;
+  padding: 1.5rem 1rem 2.5rem;
+  background: #f3f4f6;
+  box-sizing: border-box;
+}
+
+/* Center the legal content and limit width */
+.tsm-legal-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Card styling for the actual legal document */
+.tsm-legal-page {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  color: #111827;
+  line-height: 1.6;
+}
+
+.tsm-legal-page h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tsm-legal-page h2 {
+  font-size: 1.1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.tsm-legal-page p,
+.tsm-legal-page ul {
+  margin: 0.25rem 0;
+}
+
+.tsm-legal-page ul {
+  padding-left: 1.25rem;
+}
