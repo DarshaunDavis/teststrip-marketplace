@@ -189,6 +189,9 @@ function App() {
 
   const [filters, setFilters] = useState<AdFilters>(DEFAULT_FILTERS);
 
+  // NEW: mobile filters drawer state
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+
   const isGuest = !user;
 
   const effectivePostingRole: PostingRole = isGuest
@@ -294,6 +297,10 @@ function App() {
     }
   };
 
+  const handleResetFilters = () => {
+    setFilters(DEFAULT_FILTERS);
+  };
+
   return (
     <div className="tsm-app">
       <Header
@@ -390,20 +397,35 @@ function App() {
       <main className="tsm-main">
         {activeTab === "home" && (
           <>
+            {/* Desktop filters sidebar (hidden on mobile via CSS) */}
             <FiltersSidebar
               filters={filters}
               onFiltersChange={setFilters}
-              onReset={() => setFilters(DEFAULT_FILTERS)}
+              onReset={handleResetFilters}
             />
-            <BuyerAdsFeed
-              ads={filteredAds}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              onAdClick={handleOpenAd}
-              userRole={role}
-              showAllAds={showAllAds}
-              onToggleShowAll={() => setShowAllAds((prev) => !prev)}
-            />
+
+            {/* Feed column with mobile filters button + feed */}
+            <div className="tsm-feed-column">
+              <div className="tsm-feed-mobile-filters-bar">
+                <button
+                  type="button"
+                  className="tsm-btn-filters-mobile"
+                  onClick={() => setShowFiltersMobile(true)}
+                >
+                  Filters
+                </button>
+              </div>
+
+              <BuyerAdsFeed
+                ads={filteredAds}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                onAdClick={handleOpenAd}
+                userRole={role}
+                showAllAds={showAllAds}
+                onToggleShowAll={() => setShowAllAds((prev) => !prev)}
+              />
+            </div>
           </>
         )}
 
@@ -456,6 +478,58 @@ function App() {
           <AdminPage onPostClick={() => setShowAdminPostWizard(true)} />
         )}
       </main>
+
+      {/* MOBILE FILTERS DRAWER */}
+      {showFiltersMobile && (
+        <div
+          className="tsm-filters-mobile-overlay"
+          onClick={() => setShowFiltersMobile(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="tsm-filters-mobile-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="tsm-filters-mobile-header">
+              <span className="tsm-filters-mobile-title">Filters</span>
+              <button
+                type="button"
+                className="tsm-filters-mobile-close"
+                onClick={() => setShowFiltersMobile(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Reuse the same FiltersSidebar component inside the drawer */}
+            <FiltersSidebar
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={handleResetFilters}
+            />
+
+            <div className="tsm-filters-mobile-footer">
+              <button
+                type="button"
+                className="tsm-btn-secondary tsm-filters-mobile-btn"
+                onClick={() => {
+                  handleResetFilters();
+                }}
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                className="tsm-btn-primary tsm-filters-mobile-btn"
+                onClick={() => setShowFiltersMobile(false)}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="tsm-footer">
         <span>© 2025 Test Strip Marketplace</span>
