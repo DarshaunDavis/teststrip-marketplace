@@ -80,6 +80,121 @@ const BuyerAdsFeed: React.FC<BuyerAdsFeedProps> = ({
     userRole === "buyer" ||
     userRole === "wholesaler";
 
+  const viewLabel = viewMode === "list" ? "List view" : "Gallery view";
+
+  // ─────────────────────────────────────────────
+  // Empty state when no ads pass filters
+  // ─────────────────────────────────────────────
+  if (filteredCount === 0) {
+    return (
+      <section className="tsm-feed">
+        <div className="tsm-feed-header">
+          <div>
+            <h1 className="tsm-feed-title">Marketplace Ads Near You</h1>
+            <p className="tsm-feed-subtitle">
+              0 ads · nationwide · {viewLabel}
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: "0.35rem",
+            }}
+          >
+            {showSeeAllToggle && (
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  fontSize: "0.8rem",
+                  color: "#4b5563",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={showAllAds}
+                  onChange={onToggleShowAll}
+                  style={{ cursor: "pointer" }}
+                />
+                <span>See all ads</span>
+              </label>
+            )}
+
+            <div className="tsm-view-toggle">
+              <button
+                className={`tsm-view-btn ${
+                  viewMode === "list" ? "tsm-view-btn-active" : ""
+                }`}
+                onClick={() => onViewModeChange("list")}
+              >
+                List
+              </button>
+              <button
+                className={`tsm-view-btn ${
+                  viewMode === "gallery" ? "tsm-view-btn-active" : ""
+                }`}
+                onClick={() => onViewModeChange("gallery")}
+              >
+                Gallery
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            padding: "1.5rem 1.25rem",
+            borderRadius: "0.75rem",
+            border: "1px solid #e5e7eb",
+            background: "#f9fafb",
+            marginTop: "0.75rem",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: "0.98rem",
+              fontWeight: 600,
+              color: "#111827",
+            }}
+          >
+            No ads match your filters yet
+          </h2>
+          <p
+            style={{
+              margin: "0.4rem 0 0.75rem",
+              fontSize: "0.85rem",
+              color: "#4b5563",
+              maxWidth: "32rem",
+            }}
+          >
+            Try widening your search a bit. For example:
+          </p>
+          <ul
+            style={{
+              margin: 0,
+              paddingLeft: "1.1rem",
+              fontSize: "0.82rem",
+              color: "#6b7280",
+              lineHeight: 1.5,
+            }}
+          >
+            <li>Clear your ZIP to see the latest nationwide ads.</li>
+            <li>Uncheck one or more categories to broaden results.</li>
+            <li>Loosen your price range or sort by newest again.</li>
+          </ul>
+        </div>
+      </section>
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // Normal feed when there ARE ads
+  // ─────────────────────────────────────────────
   return (
     <section className="tsm-feed">
       <div className="tsm-feed-header">
