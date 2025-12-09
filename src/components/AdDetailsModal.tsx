@@ -1,5 +1,5 @@
 // src/components/AdDetailsModal.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import type { BuyerAd } from "../types";
 
 interface AdDetailsModalProps {
@@ -23,270 +23,248 @@ const AdDetailsModal: React.FC<AdDetailsModalProps> = ({
   activeImageUrl,
   onChangeImage,
 }) => {
-  const mainImage = activeImageUrl || ad.mainImageUrl || null;
-  const hasEmail = !!ad.contactEmail;
-  const hasPhone = !!ad.contactPhone;
+  const {
+    title,
+    price,
+    buyerName,
+    city,
+    state,
+    zip,
+    note,
+    mainImageUrl,
+    imageUrls,
+    contactEmail,
+    contactPhone,
+    category,
+    productType,
+  } = ad;
+
+  // Build flat list of all images (main + extra)
+  const allImages: string[] = [
+    ...(mainImageUrl ? [mainImageUrl] : []),
+    ...(imageUrls ?? []),
+  ];
+
+  const displayedImage = activeImageUrl || allImages[0] || null;
+
+  const handleThumbClick = (url: string) => {
+    onChangeImage(url);
+  };
+
+  const handleBackdropClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  // Keyboard accessibility: Esc to close, arrows to navigate
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+
+      if (e.key === "ArrowLeft" && hasPrev) {
+        e.preventDefault();
+        onPrev();
+        return;
+      }
+
+      if (e.key === "ArrowRight" && hasNext) {
+        e.preventDefault();
+        onNext();
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [hasPrev, hasNext, onPrev, onNext, onClose]);
+
+  const hasPhone = !!contactPhone;
+  const hasEmail = !!contactEmail;
+  const hasAnyContact = hasPhone || hasEmail;
 
   return (
     <div
-      className="tsm-modal-backdrop"
-      onClick={onClose}
+      className="tsm-ad-modal-backdrop"
       role="dialog"
       aria-modal="true"
+      aria-label={title || "Ad details"}
+      onClick={handleBackdropClick}
     >
-      <div
-        className="tsm-modal"
-        onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: 720, width: "100%" }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "0.75rem",
-          }}
-        >
-          <h3 className="tsm-filters-title" style={{ margin: 0 }}>
-            {ad.title}
-          </h3>
+      <div className="tsm-ad-modal">
+        {/* Header row: title + close */}
+        <header className="tsm-ad-modal-header">
+          <div className="tsm-ad-modal-header-main">
+            <h2 className="tsm-ad-modal-title">{title}</h2>
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <button
-              type="button"
-              onClick={onPrev}
-              disabled={!hasPrev}
-              style={{
-                border: "none",
-                background: "transparent",
-                cursor: hasPrev ? "pointer" : "default",
-                opacity: hasPrev ? 1 : 0.4,
-                fontSize: "0.85rem",
-              }}
-            >
-              ← Prev
-            </button>
-
-            <button
-              type="button"
-              onClick={onNext}
-              disabled={!hasNext}
-              style={{
-                border: "none",
-                background: "transparent",
-                cursor: hasNext ? "pointer" : "default",
-                opacity: hasNext ? 1 : 0.4,
-                fontSize: "0.85rem",
-              }}
-            >
-              Next →
-            </button>
-
-            <button
-              onClick={onClose}
-              style={{
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                fontSize: "0.9rem",
-              }}
-            >
-              ✕
-            </button>
+            {(category || productType) && (
+              <p className="tsm-ad-modal-tagline">
+                {category && <span>{category}</span>}
+                {category && productType && <span> • </span>}
+                {productType && <span>{productType}</span>}
+              </p>
+            )}
           </div>
-        </div>
 
-        {/* Main layout */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)",
-            gap: "1rem",
-          }}
-        >
-          {/* Left: image(s) */}
-          <div>
-            <div
-              style={{
-                width: "100%",
-                paddingBottom: "65%",
-                position: "relative",
-                borderRadius: "0.75rem",
-                overflow: "hidden",
-                background:
-                  "radial-gradient(circle at top, #e5f0ff, #e5e7eb 55%, #f3f4f6)",
-              }}
-            >
-              {mainImage && (
+          <button
+            type="button"
+            className="tsm-ad-modal-close"
+            onClick={onClose}
+            aria-label="Close ad details"
+          >
+            ✕
+          </button>
+        </header>
+
+        {/* Content: image + details */}
+        <div className="tsm-ad-modal-body">
+          {/* Media column */}
+          <section className="tsm-ad-modal-media">
+            <div className="tsm-ad-modal-main-image-wrapper">
+              {displayedImage ? (
                 <img
-                  src={mainImage}
-                  alt={ad.title}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+                  src={displayedImage}
+                  alt={title || "Ad image"}
+                  className="tsm-ad-modal-main-image"
                 />
+              ) : (
+                <div className="tsm-ad-modal-main-image-placeholder">
+                  <span>No photos uploaded</span>
+                </div>
               )}
             </div>
 
-            {ad.imageUrls && ad.imageUrls.length > 1 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "0.5rem",
-                  marginTop: "0.75rem",
-                  overflowX: "auto",
-                }}
-              >
-                {ad.imageUrls.slice(0, 4).map((url, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => onChangeImage(url)}
-                    style={{
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "0.5rem",
-                      padding: 0,
-                      background: "transparent",
-                      width: 70,
-                      height: 70,
-                      overflow: "hidden",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img
-                      src={url}
-                      alt={`Thumbnail ${idx + 1}`}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </button>
-                ))}
+            {allImages.length > 1 && (
+              <div className="tsm-ad-modal-thumbs">
+                {allImages.map((url, idx) => {
+                  const isActive = url === displayedImage;
+                  return (
+                    <button
+                      key={`${url}-${idx}`}
+                      type="button"
+                      className={`tsm-ad-modal-thumb ${
+                        isActive ? "tsm-ad-modal-thumb-active" : ""
+                      }`}
+                      onClick={() => handleThumbClick(url)}
+                    >
+                      <img
+                        src={url}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="tsm-ad-modal-thumb-img"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
-          </div>
+          </section>
 
-          {/* Right: details */}
-          <div>
-            <p className="tsm-ad-meta" style={{ marginBottom: "0.4rem" }}>
-              {ad.category} • {ad.city || "Nationwide"}
-              {ad.city && ad.state ? ", " : ""} {ad.state} • ZIP{" "}
-              {ad.zip || "N/A"}
-            </p>
+          {/* Details column */}
+          <section className="tsm-ad-modal-details">
+            {/* Price + buyer */}
+            <div className="tsm-ad-modal-price-row">
+              <span className="tsm-ad-modal-price">
+                {typeof price === "number" && price > 0
+                  ? `$${price.toFixed(2)}`
+                  : "Offer varies"}
+              </span>
+              {buyerName && (
+                <span className="tsm-ad-modal-buyer-label">{buyerName}</span>
+              )}
+            </div>
 
-            <p
-              className="tsm-ad-price"
-              style={{ fontSize: "1.5rem", marginBottom: "0.3rem" }}
-            >
-              ${ad.price}
-            </p>
-
-            <p className="tsm-ad-buyer" style={{ marginBottom: "0.75rem" }}>
-              {ad.buyerName}
-            </p>
-
-            {ad.note && (
-              <p
-                style={{
-                  fontSize: "0.9rem",
-                  color: "#374151",
-                  whiteSpace: "pre-wrap",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                {ad.note}
+            {/* Location */}
+            {(city || state || zip) && (
+              <p className="tsm-ad-modal-location">
+                {city && <span>{city}</span>}
+                {city && state && <span>, </span>}
+                {state && <span>{state}</span>}
+                {(city || state) && zip && <span> </span>}
+                {zip && <span>{zip}</span>}
               </p>
             )}
 
-            {ad.createdAt && (
-              <p
-                style={{
-                  fontSize: "0.8rem",
-                  color: "#6b7280",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                Posted on{" "}
-                {new Date(ad.createdAt).toLocaleDateString()}
-              </p>
-            )}
+            {/* Note / description */}
+            {note && <p className="tsm-ad-modal-note">{note}</p>}
 
-            <div
-              style={{
-                marginTop: "0.75rem",
-                paddingTop: "0.75rem",
-                borderTop: "1px solid #e5e7eb",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  color: "#4b5563",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {hasEmail && hasPhone
-                  ? "To sell to this buyer, you can email or call/text them:"
-                  : hasEmail
-                  ? "To sell to this buyer, contact them using the email on file:"
-                  : hasPhone
-                  ? "To sell to this buyer, contact them using the phone number on file:"
-                  : "This ad has no direct contact info listed. Please check the description for details."}
-              </p>
+            {/* Contact block */}
+            <div className="tsm-ad-modal-contact-card">
+              <h3 className="tsm-ad-modal-contact-title">Contact Buyer</h3>
 
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                {hasEmail && (
-                  <button
-                    type="button"
-                    className="tsm-btn-primary"
-                    onClick={() => {
-                      window.location.href = `mailto:${ad.contactEmail}`;
-                    }}
-                  >
-                    Email buyer
-                  </button>
-                )}
+              {hasAnyContact ? (
+                <div className="tsm-ad-modal-contact-row">
+                  {hasPhone && (
+                    <button
+                      type="button"
+                      className="tsm-ad-modal-contact-btn"
+                      onClick={() =>
+                        contactPhone &&
+                        (window.location.href = `tel:${contactPhone}`)
+                      }
+                    >
+                      Call
+                    </button>
+                  )}
 
-                {hasPhone && (
-                  <button
-                    type="button"
-                    className="tsm-btn-primary"
-                    onClick={() => {
-                      window.location.href = `tel:${ad.contactPhone}`;
-                    }}
-                  >
-                    Call / text buyer
-                  </button>
-                )}
-              </div>
+                  {hasPhone && (
+                    <button
+                      type="button"
+                      className="tsm-ad-modal-contact-btn"
+                      onClick={() =>
+                        contactPhone &&
+                        (window.location.href = `sms:${contactPhone}`)
+                      }
+                    >
+                      Text
+                    </button>
+                  )}
 
-              {!hasEmail && !hasPhone && (
-                <p
-                  style={{
-                    marginTop: "0.5rem",
-                    fontSize: "0.8rem",
-                    color: "#6b7280",
-                  }}
-                >
-                  No contact email or phone number was provided for this ad.
+                  {hasEmail && (
+                    <button
+                      type="button"
+                      className="tsm-ad-modal-contact-btn"
+                      onClick={() =>
+                        contactEmail &&
+                        (window.location.href = `mailto:${contactEmail}`)
+                      }
+                    >
+                      Email
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="tsm-ad-modal-contact-line tsm-ad-modal-contact-muted">
+                  Contact information will appear here when the buyer provides
+                  it.
                 </p>
               )}
             </div>
-          </div>
+          </section>
         </div>
+
+        {/* Footer: Previous / Next navigation */}
+        <footer className="tsm-ad-modal-footer">
+          <button
+            type="button"
+            className="tsm-ad-modal-nav-btn"
+            onClick={onPrev}
+            disabled={!hasPrev}
+          >
+            ← Previous
+          </button>
+          <button
+            type="button"
+            className="tsm-ad-modal-nav-btn"
+            onClick={onNext}
+            disabled={!hasNext}
+          >
+            Next →
+          </button>
+        </footer>
       </div>
     </div>
   );

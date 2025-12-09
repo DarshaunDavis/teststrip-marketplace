@@ -1021,3 +1021,318 @@
   font-weight: 600;
   border: 1px solid rgba(99, 178, 252, 0.55);
 }
+
+/* ───────────────────────────── */
+/* Ad details modal (ad viewer)  */
+/* ───────────────────────────── */
+
+.tsm-ad-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 1rem 2rem;
+  z-index: 45;
+}
+
+.tsm-ad-modal {
+  background: #ffffff;
+  border-radius: 0.9rem;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+  max-width: 960px;
+  width: 100%;
+  max-height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+
+.tsm-ad-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 0.75rem;
+}
+
+.tsm-ad-modal-header-main {
+  min-width: 0;
+}
+
+.tsm-ad-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tsm-ad-modal-tagline {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.tsm-ad-modal-close {
+  border: none;
+  background: #f3f4f6;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.tsm-ad-modal-close:hover {
+  background: #e5e7eb;
+}
+
+/* Body */
+
+.tsm-ad-modal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  padding: 1rem 1.25rem 1rem;
+  overflow-y: auto;
+}
+
+/* Media column */
+
+.tsm-ad-modal-media {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tsm-ad-modal-main-image-wrapper {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.tsm-ad-modal-main-image {
+  display: block;
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.tsm-ad-modal-main-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.tsm-ad-modal-thumbs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.tsm-ad-modal-thumb {
+  border: 2px solid transparent;
+  border-radius: 0.6rem;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.tsm-ad-modal-thumb-active {
+  border-color: #3b82f6;
+}
+
+.tsm-ad-modal-thumb-img {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* Details column */
+
+.tsm-ad-modal-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.tsm-ad-modal-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.tsm-ad-modal-price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tsm-ad-modal-buyer-label {
+  font-size: 0.9rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.08);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.tsm-ad-modal-location {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.tsm-ad-modal-note {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #374151;
+}
+
+/* Contact card */
+
+.tsm-ad-modal-contact-card {
+  margin-top: 0.4rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.tsm-ad-modal-contact-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tsm-ad-modal-contact-line {
+  margin: 0.15rem 0;
+  font-size: 0.84rem;
+  color: #374151;
+}
+
+.tsm-ad-modal-contact-label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.tsm-ad-modal-contact-muted {
+  color: #9ca3af;
+}
+
+/* Footer: prev/next */
+
+.tsm-ad-modal-footer {
+  padding: 0.7rem 1.25rem 0.9rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tsm-ad-modal-nav-btn {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #111827;
+}
+
+.tsm-ad-modal-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tsm-ad-modal-nav-btn:not(:disabled):hover {
+  background: #e5e7eb;
+}
+
+/* Mobile adjustments */
+
+@media (max-width: 900px) {
+  .tsm-ad-modal-backdrop {
+    align-items: stretch;
+    padding: 3rem 0.75rem 1.25rem;
+  }
+
+  .tsm-ad-modal {
+    max-height: calc(100vh - 3.5rem);
+  }
+
+  .tsm-ad-modal-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .tsm-ad-modal-main-image {
+    height: 210px;
+  }
+
+  .tsm-ad-modal-main-image-placeholder {
+    height: 210px;
+  }
+
+  .tsm-ad-modal-footer {
+    padding-inline: 1rem;
+  }
+}
+
+.tsm-ad-modal-contact-btn {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 0.88rem;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.tsm-ad-modal-contact-btn:hover {
+  background: #f3f4f6;
+}
+
+/* FORCE CONTACT BUTTONS INLINE */
+.tsm-ad-modal-contact-row {
+  display: flex;
+  flex-wrap: wrap;           /* allow wrapping on very small screens */
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Each button shares space evenly and stays inside the modal */
+.tsm-ad-modal-contact-btn {
+  flex: 1 1 0;               /* even width, can shrink if needed */
+  min-width: 0;              /* prevent overflow */
+  text-align: center;
+  white-space: normal;       /* allow label to wrap if necessary */
+  padding: 0.55rem 0.4rem;   /* a bit tighter so 3 fit comfortably */
+}
+
+
