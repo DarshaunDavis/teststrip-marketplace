@@ -19,7 +19,6 @@ interface HeaderProps {
   postingRole: PostingRole;
   onPostingRoleChange: (role: PostingRole) => void;
 
-  // ✅ Minimal additions for funnel pages
   navMode?: HeaderNavMode; // default: "app"
   siteActive?: SiteActive; // only used when navMode === "site"
 }
@@ -63,7 +62,6 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  // ✅ Logo should always route to funnel home (/)
   const handleLogoClick = () => {
     if (window.location.pathname !== "/") {
       window.location.href = "/";
@@ -246,11 +244,14 @@ const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile nav drawer */}
       {mobileNavOpen && (
-        <div className="tsm-mobile-nav" ref={mobileNavRef}>
+        <div
+          className={`tsm-mobile-nav ${mobileNavOpen ? "tsm-mobile-nav-open" : ""}`}
+          ref={mobileNavRef}
+        >
           {navMode === "site" ? (
             <>
               <button
-                className={`tsm-mobile-nav-link ${
+                className={`tsm-nav-link ${
                   siteActive === "directory" ? "tsm-nav-link-active" : ""
                 }`}
                 onClick={() => go("/directory")}
@@ -258,7 +259,7 @@ const Header: React.FC<HeaderProps> = ({
                 Directory
               </button>
               <button
-                className={`tsm-mobile-nav-link ${
+                className={`tsm-nav-link ${
                   siteActive === "marketplace" ? "tsm-nav-link-active" : ""
                 }`}
                 onClick={() => go("/marketplace")}
@@ -268,20 +269,20 @@ const Header: React.FC<HeaderProps> = ({
             </>
           ) : (
             <>
-              <button className="tsm-mobile-nav-link" onClick={handleNavHome}>
+              <button className="tsm-nav-link" onClick={handleNavHome}>
                 Home
               </button>
-              <button className="tsm-mobile-nav-link" onClick={handleNavPost}>
+              <button className="tsm-nav-link" onClick={handleNavPost}>
                 Post
               </button>
-              <button className="tsm-mobile-nav-link" onClick={handleNavMessages}>
+              <button className="tsm-nav-link" onClick={handleNavMessages}>
                 Messages
               </button>
-              <button className="tsm-mobile-nav-link" onClick={handleNavAccount}>
+              <button className="tsm-nav-link" onClick={handleNavAccount}>
                 Account
               </button>
               {userRole === "admin" && (
-                <button className="tsm-mobile-nav-link" onClick={handleNavAdmin}>
+                <button className="tsm-nav-link" onClick={handleNavAdmin}>
                   Admin Panel
                 </button>
               )}
