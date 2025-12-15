@@ -1430,3 +1430,200 @@
 .tsm-legal-page ul {
   padding-left: 1.25rem;
 }
+
+/* ─────────────────────────────────────────────────────────
+   Home funnel page (Zillow/Yelp-ish) — scoped styles
+   Safe to keep without affecting existing ads UI.
+   ───────────────────────────────────────────────────────── */
+.tsm-home {
+  min-height: 100vh;
+  background: #f6f7fb;
+  color: #111827;
+}
+
+.tsm-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(246, 247, 251, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.tsm-topbar__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tsm-brand {
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tsm-nav {
+  display: flex;
+  gap: 14px;
+}
+
+.tsm-nav__link {
+  text-decoration: none;
+  color: rgba(17, 24, 39, 0.75);
+  font-weight: 600;
+}
+
+.tsm-nav__link:hover {
+  color: rgba(17, 24, 39, 1);
+}
+
+.tsm-hero {
+  padding: 40px 16px 60px;
+}
+
+.tsm-hero__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  padding: 28px 18px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+
+.tsm-hero__title {
+  font-size: 28px;
+  line-height: 1.15;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.3px;
+}
+
+.tsm-hero__subtitle {
+  margin: 0 0 18px 0;
+  color: rgba(17, 24, 39, 0.7);
+}
+
+.tsm-search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 14px 0 18px;
+}
+
+.tsm-search__input {
+  flex: 1;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  padding: 14px 14px;
+  font-size: 16px;
+  outline: none;
+}
+
+.tsm-search__input:focus {
+  border-color: rgba(0, 130, 252, 0.55);
+  box-shadow: 0 0 0 4px rgba(0, 130, 252, 0.12);
+}
+
+.tsm-search__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  background: #0082fc;
+  color: #fff;
+  border: 1px solid rgba(0, 130, 252, 0.35);
+  white-space: nowrap;
+}
+
+.tsm-ctaRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.tsm-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+.tsm-cta--primary {
+  background: rgba(0, 130, 252, 0.1);
+  color: #0b62bd;
+  border-color: rgba(0, 130, 252, 0.22);
+}
+
+.tsm-cta--secondary {
+  background: #ffffff;
+  color: rgba(17, 24, 39, 0.85);
+}
+
+.tsm-trustRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.tsm-pill {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.04);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  color: rgba(17, 24, 39, 0.75);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tsm-legalLinks {
+  margin-top: 18px;
+  color: rgba(17, 24, 39, 0.55);
+  font-weight: 600;
+}
+
+.tsm-legalLinks a {
+  color: rgba(17, 24, 39, 0.7);
+  text-decoration: none;
+}
+
+.tsm-legalLinks a:hover {
+  text-decoration: underline;
+}
+
+.tsm-dot {
+  margin: 0 8px;
+  opacity: 0.6;
+}
+
+/* Mobile tightening */
+@media (max-width: 520px) {
+  .tsm-hero__title {
+    font-size: 24px;
+  }
+
+  .tsm-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tsm-search__button {
+    width: 100%;
+  }
+
+  .tsm-ctaRow a {
+    flex: 1;
+  }
+}
