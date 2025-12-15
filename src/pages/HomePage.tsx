@@ -1,5 +1,7 @@
 // src/pages/HomePage.tsx
 import React, { useMemo, useState } from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const HomePage: React.FC = () => {
   const [query, setQuery] = useState("");
@@ -10,71 +12,55 @@ const HomePage: React.FC = () => {
   }, [query]);
 
   return (
-    <div className="tsm-home">
-      {/* Top Nav */}
-      <header className="tsm-topbar">
-        <div className="tsm-topbar__inner">
-          <a className="tsm-brand" href="/">
-            Test Strip Marketplace
-          </a>
+    <div className="tsm-app">
+      <Header
+        navMode="site"
+        siteActive={null}
+        activeTab="home"
+        onTabChange={() => {}}
+        onPostClick={() => (window.location.href = "/marketplace")}
+        onAccountClick={() => (window.location.href = "/marketplace")}
+        userEmail={null}
+        loading={false}
+        isGuest={true}
+        userRole={null}
+        postingRole="seller"
+        onPostingRoleChange={() => {}}
+      />
 
-          <nav className="tsm-nav">
-            <a className="tsm-nav__link" href="/directory">
-              Directory
-            </a>
-            <a className="tsm-nav__link" href="/marketplace">
-              Marketplace
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <main className="tsm-hero">
-        <div className="tsm-hero__inner">
-          <h1 className="tsm-hero__title">Find buyers near you — or nationwide.</h1>
-          <p className="tsm-hero__subtitle">
+      {/* ✅ NOT using .tsm-main (grid) so we don't get sidebar spacing */}
+      <main className="tsm-home-main">
+        <section className="tsm-home-card">
+          <h1 className="tsm-home-title">Find buyers near you — or nationwide.</h1>
+          <p className="tsm-home-subtitle">
             Search the buyer directory, or browse marketplace ads.
           </p>
 
-          {/* Above-the-fold search */}
-          <div className="tsm-search">
+          <div className="tsm-home-search">
             <input
-              className="tsm-search__input"
+              className="tsm-input"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search buyers by city, ZIP, or state"
               aria-label="Search buyer directory"
             />
-            <a className="tsm-search__button" href={directoryUrl}>
+            <a className="tsm-btn-primary tsm-home-search-btn" href={directoryUrl}>
               Search
             </a>
           </div>
 
-          {/* Primary CTAs */}
-          <div className="tsm-ctaRow">
-            <a className="tsm-cta tsm-cta--primary" href={directoryUrl}>
+          <div className="tsm-home-ctas">
+            <a className="tsm-btn-primary tsm-home-cta" href={directoryUrl}>
               Browse Directory
             </a>
-            <a className="tsm-cta tsm-cta--secondary" href="/marketplace">
+            <a className="tsm-btn-ghost tsm-home-cta" href="/marketplace">
               Browse Marketplace Ads
             </a>
           </div>
-
-          {/* Small trust row (Yelp/Zillow vibe) */}
-          <div className="tsm-trustRow">
-            <div className="tsm-pill">Public listings</div>
-            <div className="tsm-pill">Claimable profiles</div>
-            <div className="tsm-pill">Local pickup or shipping</div>
-          </div>
-
-          <div className="tsm-legalLinks">
-            <a href="/terms">Terms</a>
-            <span className="tsm-dot">•</span>
-            <a href="/privacy">Privacy</a>
-          </div>
-        </div>
+        </section>
       </main>
+
+      <Footer />
     </div>
   );
 };

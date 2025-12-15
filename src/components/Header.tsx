@@ -3,6 +3,9 @@ import React, { useState, useRef, useEffect } from "react";
 import type { PostingRole, UserRole } from "../types";
 import logo from "../assets/logo.png";
 
+type HeaderNavMode = "app" | "site";
+type SiteActive = "directory" | "marketplace" | null;
+
 interface HeaderProps {
   activeTab: "home" | "sell" | "messages" | "admin";
   onTabChange: (tab: "home" | "sell" | "messages" | "admin") => void;
@@ -15,6 +18,10 @@ interface HeaderProps {
   userRole: UserRole | null;
   postingRole: PostingRole;
   onPostingRoleChange: (role: PostingRole) => void;
+
+  // ✅ Minimal additions for funnel pages
+  navMode?: HeaderNavMode; // default: "app"
+  siteActive?: SiteActive; // only used when navMode === "site"
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -28,10 +35,11 @@ const Header: React.FC<HeaderProps> = ({
   userRole,
   postingRole,
   onPostingRoleChange,
+  navMode = "app",
+  siteActive = null,
 }) => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  // Refs for click-outside behavior
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
   const mobileToggleRef = useRef<HTMLButtonElement | null>(null);
 
@@ -55,7 +63,16 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  // Helpers so we always close the mobile drawer on navigation
+  // ✅ Logo should always route to funnel home (/)
+  const handleLogoClick = () => {
+    if (window.location.pathname !== "/") {
+      window.location.href = "/";
+      return;
+    }
+    onTabChange("home");
+    setMobileNavOpen(false);
+  };
+
   const handleNavHome = () => {
     onTabChange("home");
     setMobileNavOpen(false);
@@ -81,7 +98,11 @@ const Header: React.FC<HeaderProps> = ({
     setMobileNavOpen(false);
   };
 
-  // 🔁 Close mobile menu when clicking anywhere outside the menu & toggle
+  const go = (path: string) => {
+    window.location.href = path;
+    setMobileNavOpen(false);
+  };
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (!mobileNavOpen) return;
@@ -91,15 +112,9 @@ const Header: React.FC<HeaderProps> = ({
       const target = e.target as Node | null;
 
       if (!target) return;
-
-      // If click is inside the menu, do nothing
       if (menu && menu.contains(target)) return;
-
-      // If click is on the toggle button, do nothing here
-      // (the toggle's onClick will handle open/close)
       if (toggle && toggle.contains(target)) return;
 
-      // Otherwise, clicked outside → close menu
       setMobileNavOpen(false);
     }
 
@@ -112,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({
       <header className="tsm-header">
         <div
           className="tsm-header-brand"
-          onClick={handleNavHome}
+          onClick={handleLogoClick}
           style={{
             cursor: "pointer",
             display: "flex",
@@ -133,52 +148,70 @@ const Header: React.FC<HeaderProps> = ({
 
         {/* Desktop nav */}
         <nav className="tsm-nav-links tsm-nav-desktop">
-          <button
-            className={`tsm-nav-link ${
-              activeTab === "home" ? "tsm-nav-link-active" : ""
-            }`}
-            onClick={handleNavHome}
-          >
-            Home
-          </button>
-          <button className="tsm-nav-link" onClick={handleNavPost}>
-            Post
-          </button>
-          <button
-            className={`tsm-nav-link ${
-              activeTab === "messages" ? "tsm-nav-link-active" : ""
-            }`}
-            onClick={handleNavMessages}
-          >
-            Messages
-          </button>
-          <button className="tsm-nav-link" onClick={handleNavAccount}>
-            Account
-          </button>
+          {navMode === "site" ? (
+            <>
+              <button
+                className={`tsm-nav-link ${
+                  siteActive === "directory" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={() => go("/directory")}
+              >
+                Directory
+              </button>
+              <button
+                className={`tsm-nav-link ${
+                  siteActive === "marketplace" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={() => go("/marketplace")}
+              >
+                Marketplace
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className={`tsm-nav-link ${
+                  activeTab === "home" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={handleNavHome}
+              >
+                Home
+              </button>
+              <button className="tsm-nav-link" onClick={handleNavPost}>
+                Post
+              </button>
+              <button
+                className={`tsm-nav-link ${
+                  activeTab === "messages" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={handleNavMessages}
+              >
+                Messages
+              </button>
+              <button className="tsm-nav-link" onClick={handleNavAccount}>
+                Account
+              </button>
 
-          {userRole === "admin" && (
-            <button
-              className={`tsm-nav-link ${
-                activeTab === "admin" ? "tsm-nav-link-active" : ""
-              }`}
-              onClick={handleNavAdmin}
-            >
-              Admin Panel
-            </button>
+              {userRole === "admin" && (
+                <button
+                  className={`tsm-nav-link ${
+                    activeTab === "admin" ? "tsm-nav-link-active" : ""
+                  }`}
+                  onClick={handleNavAdmin}
+                >
+                  Admin Panel
+                </button>
+              )}
+            </>
           )}
         </nav>
 
         <div className="tsm-header-right">
-          {/* Mobile hamburger toggle (hidden on desktop via CSS) */}
           <button
             type="button"
             className="tsm-mobile-menu-toggle"
             ref={mobileToggleRef}
-            aria-label={
-              mobileNavOpen
-                ? "Close navigation menu"
-                : "Open navigation menu"
-            }
+            aria-label={mobileNavOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileNavOpen}
             onClick={() => setMobileNavOpen((prev) => !prev)}
           >
@@ -187,75 +220,75 @@ const Header: React.FC<HeaderProps> = ({
             </span>
           </button>
 
-          {/* Role switch / badge */}
           {isGuest ? (
             <div className="tsm-role-switch">
               <span className="tsm-role-label">Posting as</span>
               <select
                 className="tsm-role-select"
                 value={postingRole}
-                onChange={(e) =>
-                  onPostingRoleChange(e.target.value as PostingRole)
-                }
+                onChange={(e) => onPostingRoleChange(e.target.value as PostingRole)}
               >
                 <option value="seller">Seller</option>
                 <option value="buyer">Buyer</option>
-                {/* no wholesaler for guests */}
               </select>
             </div>
           ) : (
-            <div className="tsm-role-badge">
-              {roleLabelFromUserRole(userRole)}
-            </div>
+            <div className="tsm-role-badge">{roleLabelFromUserRole(userRole)}</div>
           )}
 
           <span className="tsm-welcome-text">
             Welcome, <strong>{displayEmail}</strong>
           </span>
+
           <div className="tsm-avatar-placeholder" />
         </div>
       </header>
 
-      {/* Mobile slide-down nav */}
-      <div
-        ref={mobileNavRef}
-        className={`tsm-mobile-nav ${
-          mobileNavOpen ? "tsm-mobile-nav-open" : ""
-        }`}
-      >
-        <button
-          className={`tsm-nav-link ${
-            activeTab === "home" ? "tsm-nav-link-active" : ""
-          }`}
-          onClick={handleNavHome}
-        >
-          Home
-        </button>
-        <button className="tsm-nav-link" onClick={handleNavPost}>
-          Post
-        </button>
-        <button
-          className={`tsm-nav-link ${
-            activeTab === "messages" ? "tsm-nav-link-active" : ""
-          }`}
-          onClick={handleNavMessages}
-        >
-          Messages
-        </button>
-        <button className="tsm-nav-link" onClick={handleNavAccount}>
-          Account
-        </button>
-        {userRole === "admin" && (
-          <button
-            className={`tsm-nav-link ${
-              activeTab === "admin" ? "tsm-nav-link-active" : ""
-            }`}
-            onClick={handleNavAdmin}
-          >
-            Admin Panel
-          </button>
-        )}
-      </div>
+      {/* Mobile nav drawer */}
+      {mobileNavOpen && (
+        <div className="tsm-mobile-nav" ref={mobileNavRef}>
+          {navMode === "site" ? (
+            <>
+              <button
+                className={`tsm-mobile-nav-link ${
+                  siteActive === "directory" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={() => go("/directory")}
+              >
+                Directory
+              </button>
+              <button
+                className={`tsm-mobile-nav-link ${
+                  siteActive === "marketplace" ? "tsm-nav-link-active" : ""
+                }`}
+                onClick={() => go("/marketplace")}
+              >
+                Marketplace
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="tsm-mobile-nav-link" onClick={handleNavHome}>
+                Home
+              </button>
+              <button className="tsm-mobile-nav-link" onClick={handleNavPost}>
+                Post
+              </button>
+              <button className="tsm-mobile-nav-link" onClick={handleNavMessages}>
+                Messages
+              </button>
+              <button className="tsm-mobile-nav-link" onClick={handleNavAccount}>
+                Account
+              </button>
+              {userRole === "admin" && (
+                <button className="tsm-mobile-nav-link" onClick={handleNavAdmin}>
+                  Admin Panel
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 };
