@@ -1631,3 +1631,34 @@
     flex-direction: column;
   }
 }
+
+/* HOME FUNNEL: desktop polish (override only; keep existing styles intact) */
+@media (min-width: 901px) {
+  .tsm-home-main {
+    padding: 2.25rem 3rem 3rem;
+  }
+
+  .tsm-home-card {
+    max-width: 980px;          /* wider card so it doesn't look tiny on desktop */
+    padding: 2rem 2.25rem;
+  }
+
+  .tsm-home-title {
+    font-size: 2.2rem;         /* stronger desktop headline */
+  }
+
+  .tsm-home-search {
+    display: grid;             /* prevents weird flex stretching on desktop */
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .tsm-home-search-btn {
+    width: 180px;              /* keeps the Search button from becoming massive */
+    justify-content: center;
+  }
+
+  .tsm-home-ctas {
+    justify-content: flex-start;
+  }
+}
