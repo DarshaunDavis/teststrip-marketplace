@@ -19,6 +19,7 @@ import BuyerAdsFeed from "./components/BuyerAdsFeed";
 import AdDetailsModal from "./components/AdDetailsModal";
 import SellForm from "./components/SellForm";
 import AdminPage from "./components/AdminPage";
+import DirectoryBuyerWizard from "./components/DirectoryBuyerWizard";
 
 function App() {
   const { user, loading, role } = useAuth();
@@ -70,6 +71,8 @@ function App() {
   const hasPrev = selectedAdIndex !== null && selectedAdIndex > 0;
   const hasNext =
     selectedAdIndex !== null && selectedAdIndex < filteredAds.length - 1;
+
+  const [showDirectoryBuyerWizard, setShowDirectoryBuyerWizard] = useState(false);
 
   useEffect(() => {
     const adsQuery = query(ref(rtdb, "ads"), orderByChild("createdAt"));
@@ -251,6 +254,19 @@ function App() {
         />
       )}
 
+      {showDirectoryBuyerWizard && (
+  <div
+    className="tsm-modal-backdrop"
+    onClick={() => setShowDirectoryBuyerWizard(false)}
+    role="dialog"
+    aria-modal="true"
+  >
+    <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
+      <DirectoryBuyerWizard onClose={() => setShowDirectoryBuyerWizard(false)} />
+    </div>
+  </div>
+)}
+
       {/* MAIN */}
       <main className="tsm-main">
         {activeTab === "home" && (
@@ -333,7 +349,10 @@ function App() {
         )}
 
         {activeTab === "admin" && role === "admin" && (
-          <AdminPage onPostClick={() => setShowAdminPostWizard(true)} />
+          <AdminPage
+  onPostClick={() => setShowAdminPostWizard(true)}
+  onAddDirectoryBuyerClick={() => setShowDirectoryBuyerWizard(true)}
+/>
         )}
       </main>
 

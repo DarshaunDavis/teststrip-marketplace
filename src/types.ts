@@ -50,3 +50,36 @@ export interface AdFilters {
   sortBy: "newest" | "highest";
 }
 
+// ─────────────────────────────────────────────
+// Directory (Buyer Listings)
+// ─────────────────────────────────────────────
+
+export type FulfillmentPreference = "pickup" | "ship" | "both";
+
+export interface DirectoryBuyer {
+  id: string;
+
+  buyerName: string;
+  city: string;
+  state: string;
+  zip: string;
+
+  // how the seller gets paid (local pickup vs shipping)
+  fulfillment: FulfillmentPreference;
+
+  // optional contact fields (shown in the details modal)
+  contactPhone?: string;
+  contactEmail?: string;
+  website?: string;
+
+  premium?: boolean; // sponsored placement
+  note?: string;
+  createdAt?: number | null;
+}
+
+export interface DirectoryFilters {
+  zip: string;
+  search: string;
+  fulfillment: "any" | "pickup" | "ship";
+  sortBy: "newest" | "name";
+}

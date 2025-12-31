@@ -7,18 +7,23 @@ type HeaderNavMode = "app" | "site";
 type SiteActive = "directory" | "marketplace" | null;
 
 interface HeaderProps {
-  activeTab: "home" | "sell" | "messages" | "admin";
-  onTabChange: (tab: "home" | "sell" | "messages" | "admin") => void;
-  onPostClick: () => void;
-  onAccountClick: () => void;
+  // APP MODE (tab navigation) — optional when navMode === "site"
+  activeTab?: "home" | "sell" | "messages" | "admin";
+  onTabChange?: (tab: "home" | "sell" | "messages" | "admin") => void;
+  onPostClick?: () => void;
+  onAccountClick?: () => void;
+
+  // SHARED
   userEmail: string | null;
   loading: boolean;
-
   isGuest: boolean;
   userRole: UserRole | null;
-  postingRole: PostingRole;
-  onPostingRoleChange: (role: PostingRole) => void;
 
+  // Posting role switch (guest UX) — optional in site mode if you don't want it there
+  postingRole?: PostingRole;
+  onPostingRoleChange?: (role: PostingRole) => void;
+
+  // MODE
   navMode?: HeaderNavMode; // default: "app"
   siteActive?: SiteActive; // only used when navMode === "site"
 }
@@ -62,42 +67,56 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const go = (path: string) => {
+    window.location.href = path;
+    setMobileNavOpen(false);
+  };
+
   const handleLogoClick = () => {
+    // In site mode, logo should always route to the main landing page.
+    if (navMode === "site") {
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
+      setMobileNavOpen(false);
+      return;
+    }
+
+    // App mode behavior (previous)
     if (window.location.pathname !== "/") {
       window.location.href = "/";
       return;
     }
-    onTabChange("home");
+    onTabChange?.("home");
     setMobileNavOpen(false);
   };
 
   const handleNavHome = () => {
-    onTabChange("home");
+    if (navMode === "site") {
+      go("/");
+      return;
+    }
+    onTabChange?.("home");
     setMobileNavOpen(false);
   };
 
   const handleNavMessages = () => {
-    onTabChange("messages");
+    onTabChange?.("messages");
     setMobileNavOpen(false);
   };
 
   const handleNavAdmin = () => {
-    onTabChange("admin");
+    onTabChange?.("admin");
     setMobileNavOpen(false);
   };
 
   const handleNavPost = () => {
-    onPostClick();
+    onPostClick?.();
     setMobileNavOpen(false);
   };
 
   const handleNavAccount = () => {
-    onAccountClick();
-    setMobileNavOpen(false);
-  };
-
-  const go = (path: string) => {
-    window.location.href = path;
+    onAccountClick?.();
     setMobileNavOpen(false);
   };
 
@@ -119,6 +138,9 @@ const Header: React.FC<HeaderProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileNavOpen]);
+
+  // If guests + site mode + no postingRole passed, default for safe rendering
+  const effectivePostingRole: PostingRole = postingRole ?? "seller";
 
   return (
     <>
@@ -175,9 +197,11 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Home
               </button>
+
               <button className="tsm-nav-link" onClick={handleNavPost}>
                 Post
               </button>
+
               <button
                 className={`tsm-nav-link ${
                   activeTab === "messages" ? "tsm-nav-link-active" : ""
@@ -186,6 +210,7 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Messages
               </button>
+
               <button className="tsm-nav-link" onClick={handleNavAccount}>
                 Account
               </button>
@@ -218,13 +243,15 @@ const Header: React.FC<HeaderProps> = ({
             </span>
           </button>
 
+          {/* Keep your guest posting role UX intact,
+              but only render the switch if handler is provided (prevents TS + runtime issues). */}
           {isGuest ? (
             <div className="tsm-role-switch">
               <span className="tsm-role-label">Posting as</span>
               <select
                 className="tsm-role-select"
-                value={postingRole}
-                onChange={(e) => onPostingRoleChange(e.target.value as PostingRole)}
+                value={effectivePostingRole}
+                onChange={(e) => onPostingRoleChange?.(e.target.value as PostingRole)}
               >
                 <option value="seller">Seller</option>
                 <option value="buyer">Buyer</option>
