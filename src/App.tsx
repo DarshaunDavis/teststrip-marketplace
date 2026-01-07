@@ -20,6 +20,7 @@ import AdDetailsModal from "./components/AdDetailsModal";
 import SellForm from "./components/SellForm";
 import AdminPage from "./components/AdminPage";
 import DirectoryBuyerWizard from "./components/DirectoryBuyerWizard";
+import AddDirectoryBuyerModal from "./components/AddDirectoryBuyerModal";
 
 function App() {
   const { user, loading, role } = useAuth();
@@ -48,8 +49,15 @@ function App() {
 
   const [filters, setFilters] = useState<AdFilters>(DEFAULT_FILTERS);
 
-  // NEW: mobile filters drawer state
+  // Mobile filters drawer
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+
+  // Admin: Directory buyer modal
+  const [showAddDirectoryBuyer, setShowAddDirectoryBuyer] = useState(false);
+
+  // (Optional) legacy wizard you already had
+  const [showDirectoryBuyerWizard, setShowDirectoryBuyerWizard] =
+    useState(false);
 
   const isGuest = !user;
 
@@ -71,8 +79,6 @@ function App() {
   const hasPrev = selectedAdIndex !== null && selectedAdIndex > 0;
   const hasNext =
     selectedAdIndex !== null && selectedAdIndex < filteredAds.length - 1;
-
-  const [showDirectoryBuyerWizard, setShowDirectoryBuyerWizard] = useState(false);
 
   useEffect(() => {
     const adsQuery = query(ref(rtdb, "ads"), orderByChild("createdAt"));
@@ -104,8 +110,7 @@ function App() {
           createdAt: data.createdAt ?? null,
           mainImageUrl: data.mainImageUrl ?? undefined,
           imageUrls: (data.imageUrls as string[]) ?? undefined,
-          postingRole:
-            (data.postingRole as PostingRole | undefined) ?? undefined,
+          postingRole: (data.postingRole as PostingRole | undefined) ?? undefined,
         };
       });
 
@@ -158,9 +163,7 @@ function App() {
     }
   };
 
-  const handleResetFilters = () => {
-    setFilters(DEFAULT_FILTERS);
-  };
+  const handleResetFilters = () => setFilters(DEFAULT_FILTERS);
 
   return (
     <div className="tsm-app">
@@ -176,7 +179,6 @@ function App() {
         postingRole={effectivePostingRole}
         onPostingRoleChange={(newRole) => {
           if (isGuest) {
-            // guests can only be seller/buyer
             if (newRole === "wholesaler") return;
             setGuestPostingRole(newRole);
           }
@@ -232,9 +234,32 @@ function App() {
           <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
             <PostAdWizard
               onClose={() => setShowAdminPostWizard(false)}
-              defaultEmail={""} // start blank
-              ownerUid={null} // 👈 unclaimed
-              postingRole={"buyer"} // 👈 always buyer ad for now
+              defaultEmail=""
+              ownerUid={null}
+              postingRole="buyer"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* DIRECTORY BUYER MODAL (new) */}
+      {showAddDirectoryBuyer && (
+        <AddDirectoryBuyerModal
+          onClose={() => setShowAddDirectoryBuyer(false)}
+        />
+      )}
+
+      {/* (Optional) DIRECTORY BUYER WIZARD (legacy/your existing component) */}
+      {showDirectoryBuyerWizard && (
+        <div
+          className="tsm-modal-backdrop"
+          onClick={() => setShowDirectoryBuyerWizard(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
+            <DirectoryBuyerWizard
+              onClose={() => setShowDirectoryBuyerWizard(false)}
             />
           </div>
         </div>
@@ -254,31 +279,16 @@ function App() {
         />
       )}
 
-      {showDirectoryBuyerWizard && (
-  <div
-    className="tsm-modal-backdrop"
-    onClick={() => setShowDirectoryBuyerWizard(false)}
-    role="dialog"
-    aria-modal="true"
-  >
-    <div className="tsm-modal" onClick={(e) => e.stopPropagation()}>
-      <DirectoryBuyerWizard onClose={() => setShowDirectoryBuyerWizard(false)} />
-    </div>
-  </div>
-)}
-
       {/* MAIN */}
       <main className="tsm-main">
         {activeTab === "home" && (
           <>
-            {/* Desktop filters sidebar (hidden on mobile via CSS) */}
             <FiltersSidebar
               filters={filters}
               onFiltersChange={setFilters}
               onReset={handleResetFilters}
             />
 
-            {/* Feed column with mobile filters button + feed */}
             <div className="tsm-feed-column">
               <div className="tsm-feed-mobile-filters-bar">
                 <button
@@ -342,17 +352,15 @@ function App() {
             style={{ padding: "3rem", justifyContent: "center" }}
           >
             <h1 className="tsm-feed-title">Messages</h1>
-            <p className="tsm-feed-subtitle">
-              In-app messaging is coming soon.
-            </p>
+            <p className="tsm-feed-subtitle">In-app messaging is coming soon.</p>
           </section>
         )}
 
         {activeTab === "admin" && role === "admin" && (
           <AdminPage
-  onPostClick={() => setShowAdminPostWizard(true)}
-  onAddDirectoryBuyerClick={() => setShowDirectoryBuyerWizard(true)}
-/>
+            onPostClick={() => setShowAdminPostWizard(true)}
+            onAddDirectoryBuyerClick={() => setShowAddDirectoryBuyer(true)}
+          />
         )}
       </main>
 
@@ -379,7 +387,6 @@ function App() {
               </button>
             </div>
 
-            {/* Reuse the same FiltersSidebar component inside the drawer */}
             <FiltersSidebar
               filters={filters}
               onFiltersChange={setFilters}
@@ -390,9 +397,7 @@ function App() {
               <button
                 type="button"
                 className="tsm-btn-secondary tsm-filters-mobile-btn"
-                onClick={() => {
-                  handleResetFilters();
-                }}
+                onClick={handleResetFilters}
               >
                 Reset
               </button>
@@ -408,8 +413,7 @@ function App() {
         </div>
       )}
 
-      
-    <Footer />
+      <Footer />
     </div>
   );
 }

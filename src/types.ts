@@ -11,12 +11,7 @@ export type PostType = "offer" | "want" | "build";
 // NEW: what the UI lets the user pick as their role
 export type PostingRole = "seller" | "buyer" | "wholesaler";
 
-export type UserRole =
-  | "seller"
-  | "buyer"
-  | "wholesaler"
-  | "admin"
-  | "moderator";
+export type UserRole = "seller" | "buyer" | "wholesaler" | "admin" | "moderator";
 
 export interface BuyerAd {
   id: string;
@@ -64,10 +59,9 @@ export interface DirectoryBuyer {
   state: string;
   zip: string;
 
-  // how the seller gets paid (local pickup vs shipping)
+  // pickup vs ship vs both
   fulfillment: FulfillmentPreference;
 
-  // optional contact fields (shown in the details modal)
   contactPhone?: string;
   contactEmail?: string;
   website?: string;
