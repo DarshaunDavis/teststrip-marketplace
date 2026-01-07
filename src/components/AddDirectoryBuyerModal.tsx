@@ -36,49 +36,33 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
     setError(null);
     setSuccess(null);
 
+    // All fields are OPTIONAL for the directory.
+    // We keep trimming for cleanliness and to avoid accidental whitespace-only values.
     const nameTrim = buyerName.trim();
     const cityTrim = city.trim();
     const stateTrim = state.trim();
     const zipTrim = zip.trim();
 
-    if (!nameTrim) {
-      setError("Please enter a buyer name.");
-      return;
-    }
-
-    if (!stateTrim) {
-      setError("Please enter a state (e.g., NY).");
-      return;
-    }
-
-    if (zipTrim && !/^\d{5}$/.test(zipTrim)) {
-      setError("ZIP must be exactly 5 digits (or leave blank).");
-      return;
-    }
-
     const emailTrim = contactEmail.trim();
     const phoneTrim = contactPhone.trim();
-
-    if (!emailTrim && !phoneTrim) {
-      setError("Please provide at least an email or phone number.");
-      return;
-    }
+    const websiteTrim = website.trim();
+    const noteTrim = note.trim();
 
     setBusy(true);
     try {
       console.log("[AddDirectoryBuyerModal] posting directory buyer...");
 
-      // IMPORTANT: Pass raw strings. The service strips undefined exactly like adsService.
+      // IMPORTANT: Pass trimmed strings. The service strips undefined exactly like adsService.
       await createDirectoryBuyer({
-        buyerName: nameTrim,
+        buyerName: nameTrim || "Unknown Buyer",
         city: cityTrim,
         state: stateTrim,
         zip: zipTrim,
         fulfillment,
         contactEmail: emailTrim || undefined,
         contactPhone: phoneTrim || undefined,
-        website: website.trim() || undefined,
-        note: note.trim() || undefined,
+        website: websiteTrim || undefined,
+        note: noteTrim || undefined,
         premium,
       });
 
@@ -124,7 +108,7 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
         </div>
 
         <p className="tsm-help-text" style={{ marginTop: "0.5rem" }}>
-          Exact 5-digit ZIP is best for filtering.
+          All fields are optional. Enter whatever you have (often just phone + location).
         </p>
 
         {error && (
@@ -141,19 +125,18 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
 
         <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
           <div className="tsm-filter-group">
-            <label className="tsm-label">Buyer Name</label>
+            <label className="tsm-label">Buyer Name (optional)</label>
             <input
               className="tsm-input"
-              required
               value={buyerName}
               onChange={(e) => setBuyerName(e.target.value)}
-              placeholder="Example Buyer LLC"
+              placeholder="Example Buyer LLC (or leave blank)"
             />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 0.5fr", gap: "0.75rem" }}>
             <div className="tsm-filter-group">
-              <label className="tsm-label">City</label>
+              <label className="tsm-label">City (optional)</label>
               <input
                 className="tsm-input"
                 value={city}
@@ -163,10 +146,9 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
             </div>
 
             <div className="tsm-filter-group">
-              <label className="tsm-label">State</label>
+              <label className="tsm-label">State (optional)</label>
               <input
                 className="tsm-input"
-                required
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 placeholder="NY"
@@ -200,7 +182,7 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
             <div className="tsm-filter-group">
-              <label className="tsm-label">Contact Phone</label>
+              <label className="tsm-label">Contact Phone (optional)</label>
               <input
                 className="tsm-input"
                 value={contactPhone}
@@ -210,7 +192,7 @@ const AddDirectoryBuyerModal: React.FC<Props> = ({ onClose }) => {
             </div>
 
             <div className="tsm-filter-group">
-              <label className="tsm-label">Contact Email</label>
+              <label className="tsm-label">Contact Email (optional)</label>
               <input
                 className="tsm-input"
                 type="email"
