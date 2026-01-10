@@ -17,6 +17,26 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
   const premium = buyers.filter((b) => !!b.premium);
   const regular = buyers.filter((b) => !b.premium);
 
+  const renderClaimLink = (b: DirectoryBuyer) => {
+    if (!b.createdByAdmin || !b.contactPhone) return null;
+
+    return (
+    <a
+      href={`/directory/${b.id}?claim=1`}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        marginTop: "0.4rem",
+        fontSize: "0.75rem",
+        color: "#2563eb",
+        textDecoration: "underline",
+        cursor: "pointer",
+      }}
+    >
+      Is this your number? Click to claim this listing
+    </a>
+  );
+};
+
   return (
     <section className="tsm-feed">
       <div className="tsm-feed-header">
@@ -75,13 +95,18 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
                   <h3 className="tsm-ad-title">{b.buyerName}</h3>
                   <span className="tsm-pill tsm-pill-premium">SPONSORED</span>
                 </div>
+
                 <p className="tsm-ad-meta">
                   {b.city}, {b.state} • {b.zip}
                 </p>
+
                 <p className="tsm-ad-buyer">
                   <strong>{fulfillmentLabel(b.fulfillment)}</strong>
                 </p>
+
                 {b.note && <p className="tsm-ad-note">{b.note}</p>}
+
+                {renderClaimLink(b)}
               </div>
             </button>
           );
@@ -105,9 +130,7 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
             onClick={() => onBuyerClick(idx)}
           >
             <div className="tsm-ad-body">
-              <div className="tsm-ad-title-row">
-                <h3 className="tsm-ad-title">{b.buyerName}</h3>
-              </div>
+              <h3 className="tsm-ad-title">{b.buyerName}</h3>
 
               <p className="tsm-ad-meta">
                 {b.city}, {b.state} • {b.zip}
@@ -118,6 +141,8 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
               </p>
 
               {b.note && <p className="tsm-ad-note">{b.note}</p>}
+
+              {renderClaimLink(b)}
             </div>
           </button>
         ))}

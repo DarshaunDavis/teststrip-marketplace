@@ -10,6 +10,7 @@ import TermsPage from "./pages/TermsPage.tsx";
 import PrivacyPage from "./pages/PrivacyPage.tsx";
 import HomePage from "./pages/HomePage";
 import DirectoryPage from "./pages/DirectoryPage";
+import DirectoryBuyerPage from "./pages/DirectoryBuyerPage";
 
 const pathname = window.location.pathname;
 
@@ -18,6 +19,7 @@ const isTermsPage = pathname === "/terms";
 const isPrivacyPage = pathname === "/privacy";
 const isMarketplace = pathname === "/marketplace" || pathname === "/ads";
 const isDirectoryPage = pathname === "/directory";
+const isDirectoryListing = pathname.startsWith("/directory/");
 
 let RootComponent: React.ReactNode;
 
@@ -29,6 +31,8 @@ if (isLislalCallback) {
   RootComponent = <PrivacyPage />;
 } else if (isMarketplace) {
   RootComponent = <App />;
+} else if (isDirectoryListing) {
+  RootComponent = <DirectoryBuyerPage />;
 } else if (isDirectoryPage) {
   RootComponent = <DirectoryPage />;
 } else {

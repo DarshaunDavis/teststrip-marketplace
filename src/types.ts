@@ -27,6 +27,7 @@ export interface BuyerAd {
   contactPhone?: string;
   premium?: boolean;
   note?: string;
+  createdByAdmin?: boolean;
   createdAt?: number | null;
   mainImageUrl?: string;
   imageUrls?: string[];
@@ -68,6 +69,7 @@ export interface DirectoryBuyer {
 
   premium?: boolean; // sponsored placement
   note?: string;
+  createdByAdmin?: boolean;
   createdAt?: number | null;
 }
 

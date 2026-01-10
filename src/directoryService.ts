@@ -55,6 +55,7 @@ export async function createDirectoryBuyer(
     state: rest.state.trim(),
     zip: rest.zip.trim(),
     premium: !!premium,
+    createdByAdmin: true,
     createdAt: Date.now(),
   };
 

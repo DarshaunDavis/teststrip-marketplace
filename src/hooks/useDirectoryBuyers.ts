@@ -83,6 +83,7 @@ export function useDirectoryBuyers(): UseDirectoryBuyersResult {
 
             note: data.note ?? data.tagline ?? undefined,
             createdAt: data.createdAt ?? null,
+            createdByAdmin: !!data.createdByAdmin,
           };
         });
 
