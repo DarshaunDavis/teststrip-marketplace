@@ -11,34 +11,49 @@ function fulfillmentLabel(v: DirectoryBuyer["fulfillment"]): string {
 interface DirectoryFeedProps {
   buyers: DirectoryBuyer[];
   onBuyerClick: (index: number) => void;
+  onClaimClick: (buyer: DirectoryBuyer) => void;
 }
 
-const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) => {
+const DirectoryFeed: React.FC<DirectoryFeedProps> = ({
+  buyers,
+  onBuyerClick,
+  onClaimClick,
+}) => {
   const premium = buyers.filter((b) => !!b.premium);
   const regular = buyers.filter((b) => !b.premium);
 
   const renderClaimLink = (b: DirectoryBuyer) => {
-    if (!b.createdByAdmin || !b.contactPhone) return null;
+    const createdByAdmin = (b as any).createdByAdmin === true;
+    if (!createdByAdmin || !b.contactPhone) return null;
 
     return (
-    <a
-      href={`/directory/${b.id}?claim=1`}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        marginTop: "0.4rem",
-        fontSize: "0.75rem",
-        color: "#2563eb",
-        textDecoration: "underline",
-        cursor: "pointer",
-      }}
-    >
-      Is this your number? Click to claim this listing
-    </a>
-  );
-};
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation(); // do not open listing modal
+          onClaimClick(b);
+        }}
+        style={{
+          marginTop: "0.4rem",
+          fontSize: "0.75rem",
+          color: "#2563eb",
+          textDecoration: "underline",
+          cursor: "pointer",
+          background: "transparent",
+          border: "none",
+          padding: 0,
+          textAlign: "left",
+        }}
+      >
+        Is this your number? Click to claim this listing
+      </button>
+    );
+  };
 
   return (
     <section className="tsm-feed">
+      {/* Header (RESTORED) */}
       <div className="tsm-feed-header">
         <div>
           <h1 className="tsm-feed-title">Buyer Directory</h1>
@@ -48,6 +63,7 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
         </div>
       </div>
 
+      {/* Sponsored strip (RESTORED) */}
       <div className="tsm-section-label">
         <span>Sponsored</span>
         <span className="tsm-section-label-right">
@@ -57,7 +73,7 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
 
       <div className="tsm-card-grid tsm-card-grid-premium">
         {(premium.length ? premium : [{ id: "placeholder" } as any]).map((b) => {
-          if (b.id === "placeholder") {
+          if ((b as any).id === "placeholder") {
             return (
               <div
                 key="p"
@@ -82,22 +98,25 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
             );
           }
 
+          const fullIndex = buyers.indexOf(b);
+
           return (
             <button
               key={b.id}
               type="button"
               className="tsm-ad-card"
               style={{ cursor: "pointer", textAlign: "left" }}
-              onClick={() => onBuyerClick(buyers.indexOf(b))}
+              onClick={() => onBuyerClick(fullIndex)}
             >
               <div className="tsm-ad-body">
                 <div className="tsm-ad-title-row">
-                  <h3 className="tsm-ad-title">{b.buyerName}</h3>
+                  <h3 className="tsm-ad-title">{b.buyerName ?? "Buyer"}</h3>
                   <span className="tsm-pill tsm-pill-premium">SPONSORED</span>
                 </div>
 
                 <p className="tsm-ad-meta">
-                  {b.city}, {b.state} • {b.zip}
+                  {b.city}, {b.state}
+                  {b.zip ? ` • ${b.zip}` : ""}
                 </p>
 
                 <p className="tsm-ad-buyer">
@@ -113,6 +132,7 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
         })}
       </div>
 
+      {/* Directory list (RESTORED) */}
       <div className="tsm-section-label" style={{ marginTop: "1rem" }}>
         <span>Directory</span>
         <span className="tsm-section-label-right">
@@ -121,31 +141,36 @@ const DirectoryFeed: React.FC<DirectoryFeedProps> = ({ buyers, onBuyerClick }) =
       </div>
 
       <div className="tsm-card-grid tsm-card-grid-list">
-        {regular.map((b, idx) => (
-          <button
-            key={b.id}
-            type="button"
-            className="tsm-ad-card"
-            style={{ cursor: "pointer", textAlign: "left" }}
-            onClick={() => onBuyerClick(idx)}
-          >
-            <div className="tsm-ad-body">
-              <h3 className="tsm-ad-title">{b.buyerName}</h3>
+        {regular.map((b) => {
+          const fullIndex = buyers.indexOf(b);
 
-              <p className="tsm-ad-meta">
-                {b.city}, {b.state} • {b.zip}
-              </p>
+          return (
+            <button
+              key={b.id}
+              type="button"
+              className="tsm-ad-card"
+              style={{ cursor: "pointer", textAlign: "left" }}
+              onClick={() => onBuyerClick(fullIndex)}
+            >
+              <div className="tsm-ad-body">
+                <h3 className="tsm-ad-title">{b.buyerName ?? "Buyer"}</h3>
 
-              <p className="tsm-ad-buyer">
-                <strong>{fulfillmentLabel(b.fulfillment)}</strong>
-              </p>
+                <p className="tsm-ad-meta">
+                  {b.city}, {b.state}
+                  {b.zip ? ` • ${b.zip}` : ""}
+                </p>
 
-              {b.note && <p className="tsm-ad-note">{b.note}</p>}
+                <p className="tsm-ad-buyer">
+                  <strong>{fulfillmentLabel(b.fulfillment)}</strong>
+                </p>
 
-              {renderClaimLink(b)}
-            </div>
-          </button>
-        ))}
+                {b.note && <p className="tsm-ad-note">{b.note}</p>}
+
+                {renderClaimLink(b)}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
