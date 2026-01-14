@@ -1,7 +1,14 @@
 // src/App.tsx
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { onValue, orderByChild, query, ref } from "firebase/database";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import { useAuth } from "./authContext";
 import PostAdWizard from "./PostAdWizard";
@@ -22,14 +29,36 @@ import AdminPage from "./components/AdminPage";
 import DirectoryBuyerWizard from "./components/DirectoryBuyerWizard";
 import AddDirectoryBuyerModal from "./components/AddDirectoryBuyerModal";
 
-function App() {
+// Standalone pages (these used to be selected in main.tsx)
+import HomePage from "./pages/HomePage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import LislalCallback from "./LislalCallback";
+
+// Directory pages
+import DirectoryPage from "./pages/DirectoryPage";
+import DirectoryBuyerPage from "./pages/DirectoryBuyerPage";
+
+type TopTab = "home" | "sell" | "messages" | "admin";
+
+function tabFromPath(pathname: string): TopTab {
+  if (pathname.startsWith("/sell")) return "sell";
+  if (pathname.startsWith("/messages")) return "messages";
+  if (pathname.startsWith("/admin")) return "admin";
+  return "home";
+}
+
+function HomeShell() {
   const { user, loading, role } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [showAuthPanel, setShowAuthPanel] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<
-    "home" | "sell" | "messages" | "admin"
-  >("home");
+  const activeTab: TopTab = useMemo(
+    () => tabFromPath(location.pathname),
+    [location.pathname]
+  );
 
   const [showPostWizard, setShowPostWizard] = useState(false);
   const [showAdminPostWizard, setShowAdminPostWizard] = useState(false);
@@ -40,22 +69,15 @@ function App() {
   const [selectedAdIndex, setSelectedAdIndex] = useState<number | null>(null);
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
 
-  // See-all-ads toggle (role-based filtering)
   const [showAllAds, setShowAllAds] = useState(false);
 
-  // Guests can choose seller/buyer; logged-in users are locked to their auth role
   const [guestPostingRole, setGuestPostingRole] =
     useState<PostingRole>("seller");
 
   const [filters, setFilters] = useState<AdFilters>(DEFAULT_FILTERS);
-
-  // Mobile filters drawer
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
-  // Admin: Directory buyer modal
   const [showAddDirectoryBuyer, setShowAddDirectoryBuyer] = useState(false);
-
-  // (Optional) legacy wizard you already had
   const [showDirectoryBuyerWizard, setShowDirectoryBuyerWizard] =
     useState(false);
 
@@ -70,7 +92,6 @@ function App() {
     : "seller";
 
   const adsBase: BuyerAd[] = ads.length ? ads : MOCK_ADS;
-
   const filteredAds: BuyerAd[] = applyFiltersForFeed(adsBase, filters);
 
   const selectedAd =
@@ -154,7 +175,6 @@ function App() {
     setActiveImageUrl(firstImage);
   };
 
-  // Shared logic for "Post" from header + FAB
   const handlePostClick = () => {
     if (!user) {
       setShowAuthPanel(true);
@@ -165,11 +185,19 @@ function App() {
 
   const handleResetFilters = () => setFilters(DEFAULT_FILTERS);
 
+  const handleTabChange = (t: TopTab) => {
+    // Marketplace shell routes
+    if (t === "home") navigate("/marketplace");
+    if (t === "sell") navigate("/sell");
+    if (t === "messages") navigate("/messages");
+    if (t === "admin") navigate("/admin");
+  };
+
   return (
     <div className="tsm-app">
       <Header
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onPostClick={handlePostClick}
         onAccountClick={() => setShowAuthPanel((v) => !v)}
         userEmail={user?.email ?? null}
@@ -185,12 +213,10 @@ function App() {
         }}
       />
 
-      {/* Mobile floating Post Ad button (hidden on desktop via CSS) */}
       <button className="tsm-fab-post-ad" onClick={handlePostClick}>
         Post Ad
       </button>
 
-      {/* AUTH MODAL */}
       {showAuthPanel && (
         <div
           className="tsm-modal-backdrop"
@@ -204,7 +230,6 @@ function App() {
         </div>
       )}
 
-      {/* POST AD WIZARD – normal user flow */}
       {showPostWizard && (
         <div
           className="tsm-modal-backdrop"
@@ -223,7 +248,6 @@ function App() {
         </div>
       )}
 
-      {/* POST AD WIZARD – ADMIN flow (unclaimed buyer ads) */}
       {showAdminPostWizard && (
         <div
           className="tsm-modal-backdrop"
@@ -242,14 +266,10 @@ function App() {
         </div>
       )}
 
-      {/* DIRECTORY BUYER MODAL (new) */}
       {showAddDirectoryBuyer && (
-        <AddDirectoryBuyerModal
-          onClose={() => setShowAddDirectoryBuyer(false)}
-        />
+        <AddDirectoryBuyerModal onClose={() => setShowAddDirectoryBuyer(false)} />
       )}
 
-      {/* (Optional) DIRECTORY BUYER WIZARD (legacy/your existing component) */}
       {showDirectoryBuyerWizard && (
         <div
           className="tsm-modal-backdrop"
@@ -265,7 +285,6 @@ function App() {
         </div>
       )}
 
-      {/* AD DETAILS MODAL */}
       {selectedAd && (
         <AdDetailsModal
           ad={selectedAd}
@@ -279,7 +298,6 @@ function App() {
         />
       )}
 
-      {/* MAIN */}
       <main className="tsm-main">
         {activeTab === "home" && (
           <>
@@ -356,15 +374,22 @@ function App() {
           </section>
         )}
 
-        {activeTab === "admin" && role === "admin" && (
-          <AdminPage
-            onPostClick={() => setShowAdminPostWizard(true)}
-            onAddDirectoryBuyerClick={() => setShowAddDirectoryBuyer(true)}
-          />
-        )}
+        {activeTab === "admin" &&
+          (role === "admin" ? (
+            <AdminPage
+              onPostClick={() => setShowAdminPostWizard(true)}
+              onAddDirectoryBuyerClick={() => setShowAddDirectoryBuyer(true)}
+            />
+          ) : (
+            <section className="tsm-feed" style={{ padding: "3rem" }}>
+              <h1 className="tsm-feed-title">Not authorized</h1>
+              <p className="tsm-feed-subtitle">
+                You don’t have access to the admin panel.
+              </p>
+            </section>
+          ))}
       </main>
 
-      {/* MOBILE FILTERS DRAWER */}
       {showFiltersMobile && (
         <div
           className="tsm-filters-mobile-overlay"
@@ -415,6 +440,35 @@ function App() {
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  // All routing now lives here (main.tsx always mounts <App />)
+  return (
+    <Routes>
+      {/* Funnel / marketing home (DEFAULT) */}
+      <Route path="/" element={<HomePage />} />
+
+      {/* Standalone pages */}
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/lislal-callback" element={<LislalCallback />} />
+
+      {/* Marketplace shell (ads) */}
+      <Route path="/marketplace" element={<HomeShell />} />
+      <Route path="/ads" element={<HomeShell />} />
+      <Route path="/sell" element={<HomeShell />} />
+      <Route path="/messages" element={<HomeShell />} />
+      <Route path="/admin" element={<HomeShell />} />
+
+      {/* Directory */}
+      <Route path="/directory" element={<DirectoryPage />} />
+      <Route path="/directory/:buyerId" element={<DirectoryBuyerPage />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

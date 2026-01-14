@@ -69,7 +69,15 @@ export interface DirectoryBuyer {
 
   premium?: boolean; // sponsored placement
   note?: string;
+
+  // created by admin = show claim link if contactPhone exists
   createdByAdmin?: boolean;
+
+  // NEW: ownership + identity (needed for auto-attach on registration + future claim)
+  ownerUid?: string | null;
+  normalizedPhone?: string | null;
+  normalizedEmail?: string | null;
+
   createdAt?: number | null;
 }
 
